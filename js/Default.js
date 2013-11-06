@@ -47,8 +47,9 @@ kawasu.orders.buildDynaTable = function () {
     styleDefn["thClass"] = "thTestClassLarge";
     styleDefn["trClass"] = "trTestClassLarge";
 
-    var jqLargeTable =
+    var largeTable =
         kawasu.orders.buildLargeTable(
+            "MyLargeTable",
             arrData,
             header,
             styleDefn,
@@ -59,7 +60,7 @@ kawasu.orders.buildDynaTable = function () {
 
     //$("#divContainer").append(jqLargeTable);
 
-    var divWrappedTable = kawasu.orders.buildWrappedTable(jqLargeTable[0], 5); // where 5 is rows to show
+    var divWrappedTable = kawasu.orders.buildWrappedTable(largeTable, 5); // where 5 is rows to show
     $("#divContainer").append(divWrappedTable);
 
     console.log(prefix + "Exiting");
@@ -163,7 +164,6 @@ kawasu.orders.headerCell_onClick = function () {
     console.log(prefix + "Entering");
 
     // Function to run when table header cell is clicked
-    //var sHeader = $(this).html();
     var sHeader = fc.utils.textContent(this);
     console.log(prefix + "HEADERCELL CLICKED >" + sHeader + "<");
 
@@ -175,7 +175,6 @@ kawasu.orders.dataCell_onClick = function () {
     console.log(prefix + "Entering");
 
     // Function to run when table header cell is clicked
-    //var sData = $(this).html();
     var sData = fc.utils.textContent(this);
     console.log(prefix + "DATACELL CLICKED >" + sData + "<");
 
@@ -183,12 +182,12 @@ kawasu.orders.dataCell_onClick = function () {
 }
 
 
-kawasu.orders.buildLargeTable = function (arrData, header, styleDefn, nRowsMinimum, headerCell_onClick, dataCell_onClick) {
+kawasu.orders.buildLargeTable = function (sTableID, arrData, header, styleDefn, nRowsMinimum, headerCell_onClick, dataCell_onClick) {
     var prefix = "kawasu.orders.buildLargeTable() - ";
     console.log(prefix + "Entering");
 
-    if (arguments.length != 6) {
-        console.log(prefix + "ERROR: Not enough args for this function, received:" + arguments.length.toString());
+    if (arguments.length != 7) {
+        console.log(prefix + "ERROR: Expected 7 args for this function, received:" + arguments.length.toString());
         return;
     }
 
@@ -202,38 +201,43 @@ kawasu.orders.buildLargeTable = function (arrData, header, styleDefn, nRowsMinim
     }
 
     // Make table
-    var table = $("<table></table>");
+    //var table = $("<table></table>");
+    var table = document.createElement("table");
     var classTable = styleDefn["tableClass"] || "";
-    table.addClass(classTable);
+    table.className = classTable;
+    table.id = sTableID;
 
 
     // Make header
-    var trHeader = $("<tr></tr>");
+    //var trHeader = $("<tr></tr>");
+    var trHeader = document.createElement("tr");
     var classRow = styleDefn["trClass"] || "";
-    trHeader.addClass(classRow);
+    trHeader.className = classRow;
 
     // Make header cells
     var classHeaderCell = styleDefn["thClass"] || "";
     for (var prop in header) {
         if (header.hasOwnProperty(prop)) {
-            var th = $("<th></th>");
-            th.html(prop)
-                .addClass(classHeaderCell)
-                .click(headerCell_onClick);
-            trHeader.append(th);
+            var th = document.createElement("th");
+            fc.utils.textContent(th, prop);
+            th.className = classHeaderCell;
+            fc.utils.addEvent(th, "click", headerCell_onClick);
+            trHeader.appendChild(th);
         }
     }
 
     // Add the header row to the table
-    table.append(trHeader);
+    table.appendChild(trHeader);
 
     // Iterate the data, add one row per element.
     // We have to add a data cell under each header cell.
 
     var classDataCell = styleDefn["tdClass"] || "";
     var sEmptyString = "&nbsp";
+    //var sEmptyString = "&#xA0;";
     for (var i = 0; i < arrData.length; ++i) {
-        var tr = $("<tr></tr>").addClass(classRow);
+        var tr = document.createElement("tr");
+        tr.className = classRow;
 
         // arrData[i] is a JSON object in the array.
         // It may or may not have a property for this header
@@ -242,16 +246,16 @@ kawasu.orders.buildLargeTable = function (arrData, header, styleDefn, nRowsMinim
                 // For this column (header), create a data cell.
                 // If the json data object has a property for this header,
                 // enter it's info and if not, enter an empty string.
-                var td = $("<td></td>");
+                var td = document.createElement("td");
                 var tdContent = arrData[i][prop] || sEmptyString;
-                td.html(tdContent)
-                    .click(dataCell_onClick)
-                    .addClass(classDataCell);
-                tr.append(td);
+                td.innerHTML = tdContent;
+                fc.utils.addEvent(td, "click", dataCell_onClick);
+                td.className = classDataCell;
+                tr.appendChild(td);
             }
         }
 
-        table.append(tr);
+        table.appendChild(tr);
     }
 
     return table;
