@@ -163,7 +163,8 @@ kawasu.orders.headerCell_onClick = function () {
     console.log(prefix + "Entering");
 
     // Function to run when table header cell is clicked
-    var sHeader = $(this).html();
+    //var sHeader = $(this).html();
+    var sHeader = fc.utils.textContent(this);
     console.log(prefix + "HEADERCELL CLICKED >" + sHeader + "<");
 
     console.log(prefix + "Exiting");
@@ -174,7 +175,8 @@ kawasu.orders.dataCell_onClick = function () {
     console.log(prefix + "Entering");
 
     // Function to run when table header cell is clicked
-    var sData = $(this).html();
+    //var sData = $(this).html();
+    var sData = fc.utils.textContent(this);
     console.log(prefix + "DATACELL CLICKED >" + sData + "<");
 
     console.log(prefix + "Exiting");
