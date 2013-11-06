@@ -19,9 +19,13 @@ var kawasu = kawasu || {};
 if (fc.utils.isInvalidVar(kawasu.dynatable)) { kawasu.dynatable = new Object(); }
 
 // ENTRY POINT
-kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow) {
+kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow, bExtendLastColOverScrollbar) {
     var prefix = "kawasu.dynatable.build() - ";
     console.log(prefix + "Entering");
+
+    // Default switch argument value is false
+    bExtendLastColOverScrollbar = (typeof bExtendLastColOverScrollbar !== 'undefined') ? bExtendLastColOverScrollbar : false;
+
 
     // Header object is created by walking the inbound data and 
     // creating a property on a new object for every unique 
@@ -39,7 +43,7 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow) {
     // Check that rawtable is defined before attempting next step
     if (fc.utils.isValidVar(rawTable)) {
         console.log(prefix + "CHECK: rawTable has been created, calling buildScrollingTable()...");
-        return kawasu.dynatable.buildScrollingTable(rawTable, nRowsToShow); // Rename of buildWrappedTable
+        return kawasu.dynatable.buildScrollingTable(rawTable, nRowsToShow, bExtendLastColOverScrollbar); 
     }
     // implicit else
     console.log(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
@@ -158,7 +162,7 @@ kawasu.dynatable.buildRawTable = function (sTableID, arrData, header, styleDefn,
 }
 
 
-kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow) {
+kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol) {
     var prefix = "kawasu.dynatable.buildScrollingTable() - ";
     console.log(prefix + "Entering");
 
@@ -204,6 +208,9 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow) {
     // Get scrollbar dimensions
     var sbWidth = fc.utils.getScrollBarWidth();
     var sbHeight = fc.utils.getScrollBarHeight();
+    if (bExtendLastCol) {
+        kawasu.dynatable.extendLastColumnOverScrollbar(tableHeader, sbWidth);
+    }
 
 
     // Create a div to hold the header and the body.
@@ -228,7 +235,10 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow) {
     divHeader.style.overflow = "hidden"; // There should be no overflow, but just in case...
     divHeader.id = sDivHeaderPrefix + sTable + sDivHeaderSuffix;
     divHeader.style.height = (sizeTableHeader.height).toString() + "px";
-    divHeader.style.width = (maxTableWidth + 1).toString() + "px";
+
+    // Optionally add in the width of the scrollbar to this div width
+    var sDivHeaderWidth = (maxTableWidth + 1 + (bExtendLastCol ? sbWidth : 0)).toString() + "px";
+    divHeader.style.width = sDivHeaderWidth;
 
     // Create a div to hold the body
     var sDivBodyPrefix = "div_";
@@ -289,7 +299,7 @@ kawasu.dynatable.getTableSize_Sub = function (table) {
     divSizing.style.top = "0px";
     divSizing.style.left = "0px";
     divSizing.style.width = "1px";
-    //divSizing.style.visibility = "hidden";
+    divSizing.style.visibility = "hidden";
 
     document.body.appendChild(divSizing);
     divSizing.appendChild(table);
@@ -344,7 +354,7 @@ kawasu.dynatable.getTableColumnWidths = function (table) {
     divSizing.style.top = "0px";
     divSizing.style.left = "0px";
     divSizing.style.width = "1px"; // Force minimum sizes
-    //divSizing.style.visibility = "hidden";
+    divSizing.style.visibility = "hidden";
 
     // Strap the div and table to the document
     document.body.appendChild(divSizing);
@@ -378,6 +388,21 @@ kawasu.dynatable.getTableColumnWidths = function (table) {
     document.body.removeChild(divSizing);
 
     return arrayColumnWidths;
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.extendLastColumnOverScrollbar = function (tableHeader, sbWidth) {
+    var prefix = "kawasu.dynatable.extendLastColumnOverScrollbar() - ";
+    console.log(prefix + "Entering");
+
+    var index = tableHeader.rows[0].cells.length - 1;
+    var cellLastHeader = tableHeader.rows[0].cells[index];
+    var sWidth = cellLastHeader.style.width;
+    var nWidth = parseInt(sWidth);
+    nWidth = nWidth + sbWidth;
+    sWidth = nWidth.toString() + "px";
+    cellLastHeader.style.width = sWidth;
 
     console.log(prefix + "Exiting");
 }

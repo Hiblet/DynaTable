@@ -36,7 +36,7 @@ kawasu.orders.init = function () {
     styleDefn["thClass"] = "thTestClassLarge";
     styleDefn["trClass"] = "trTestClassLarge";
 
-    /*
+    /* Some diags to check the table building part is OK
     var myRawTable = kawasu.dynatable.buildRawTable(
         "myRawTable",
         arrData,
@@ -52,7 +52,8 @@ kawasu.orders.init = function () {
         arrData,
         styleDefn,
         "myLargeDynatable", 
-        10);
+        10,
+        true); // Extend last column option
     
     $("#divContainer").append(myDynatable);
     
