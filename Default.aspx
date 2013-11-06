@@ -7,6 +7,7 @@
     
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script type="text/javascript" src="<%= ResolveClientUrl("~/js/FCUtils.js") %>"></script>
+    <script type="text/javascript" src="<%= ResolveClientUrl("~/js/DynaTable.js") %>"></script>
     <script type="text/javascript" src="<%= ResolveClientUrl("~/js/Default.js") %>"></script>
 
     <link rel="Stylesheet" type="text/css" href="<%= ResolveClientUrl("~/Default.css") %>" />    
