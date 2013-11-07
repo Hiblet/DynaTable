@@ -63,7 +63,7 @@ th
 
 .tdTestClassLarge 
 {
-    background-color:White;
+    /* background-color:White; */ /* IMPORTANT! DO NOT SET A BACKGROUND COLOR FOR CELLS, USE ROWS INSTEAD, FOR SELECTABLE TO WORK */
     color:Blue;
     width:100%;
 }
@@ -78,4 +78,11 @@ th
 .trTestClassLarge
 {
     min-height:30px;
+    background-color:White;
+}
+
+.trSelectedTestClassLarge 
+{
+    min-height:30px;
+    background-color:#FCFB8B;
 }

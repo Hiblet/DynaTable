@@ -26,6 +26,11 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow, bE
     // Default switch argument value is false
     bExtendLastColOverScrollbar = (typeof bExtendLastColOverScrollbar !== 'undefined') ? bExtendLastColOverScrollbar : false;
 
+    // Cache the styleDefn for use later.  All data pertaining to this table
+    // will then be stored in this area.
+    kawasu.dynatable[sTableID] = new Object();
+    kawasu.dynatable[sTableID]["styleDefn"] = styleDefn;
+
 
     // Header object is created by walking the inbound data and 
     // creating a property on a new object for every unique 
@@ -43,7 +48,7 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow, bE
     // Check that rawtable is defined before attempting next step
     if (fc.utils.isValidVar(rawTable)) {
         console.log(prefix + "CHECK: rawTable has been created, calling buildScrollingTable()...");
-        return kawasu.dynatable.buildScrollingTable(rawTable, nRowsToShow, bExtendLastColOverScrollbar); 
+        return kawasu.dynatable.buildScrollingTable(rawTable, nRowsToShow, bExtendLastColOverScrollbar);
     }
     // implicit else
     console.log(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
@@ -192,6 +197,15 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     // Actually, delete the header row
     table.deleteRow(0);
 
+    // If there is a selected style, attach a click function for selectable functionality
+    if (kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trSelectedClass")) {
+        for (var i = 0; i < table.rows.length; ++i) {
+            var tr = table.rows[i];
+            for (var j = 0; j < tr.cells.length; ++j) {                
+                fc.utils.addEvent(tr.cells[j], "click", kawasu.dynatable.dataCell_onClick);
+            }
+        }
+    }
 
     // Get the table dimensions
     var sizeTableHeader = kawasu.dynatable.getTableSize(tableHeader, 0);
@@ -211,7 +225,6 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     if (bExtendLastCol) {
         kawasu.dynatable.extendLastColumnOverScrollbar(tableHeader, sbWidth);
     }
-
 
     // Create a div to hold the header and the body.
     // The header and body are in a div that is fixed height, but unlimited width
@@ -403,6 +416,74 @@ kawasu.dynatable.extendLastColumnOverScrollbar = function (tableHeader, sbWidth)
     nWidth = nWidth + sbWidth;
     sWidth = nWidth.toString() + "px";
     cellLastHeader.style.width = sWidth;
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.dataCell_onClick = function () {
+    var prefix = "kawasu.dynatable.dataCell_onClick() - ";
+    console.log(prefix + "Entering");
+
+    // A data cell in the table has been clicked on.
+    // This should deselect the current row and set this
+    // row to selected class. Keyword=Selectable
+
+    var row = this.parentNode;
+
+    if (fc.utils.isInvalidVar(row)) {
+        console.log(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
+        return;
+    }
+
+    var table = row.parentNode;
+    var sTableID = table.id;
+
+    var trSelectedClass = kawasu.dynatable[sTableID]["styleDefn"]["trSelectedClass"];
+    var trClass = kawasu.dynatable[sTableID]["styleDefn"]["trClass"];
+
+    if (row.className == trSelectedClass) {
+        // This row is already selected, 
+        // so toggle it to deselected
+
+        if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trCachedDeselectedClass")) {
+            // There is a previous cached class, so reset to this
+            row.className = kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"];
+        }
+        else {
+            // There is no previous cached class, that's dodgy, warn about it
+            row.className = trClass;
+            console.log(prefix + "WARNING: There was no cached deselected class for this row.  A selected row should always have it's previous state saved, but this one did not.");
+        }
+    }
+    else {
+        // This row is not selected, 
+        // so deselect the current selected row (if one exists) and select this one
+
+        var bFound = false;
+        for (var i = 0; (i < table.rows.length) && (bFound == false); ++i) {
+            if (table.rows[i].className == trSelectedClass) {
+                // Found the selected row
+                bFound = true; // early exit from loop
+
+                // Set to cached deselected state
+                if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trCachedDeselectedClass")) {
+                    // There is a previous cached class, so reset to this
+                    table.rows[i].className = kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"];
+                }
+                else {
+                    // There is no previous cached class, that's dodgy, warn about it
+                    table.rows[i].className = trClass;
+                    console.log(prefix + "WARNING: There was no cached deselected class for this row.  A selected row should always have it's previous state saved, but this one did not.");
+                }
+
+            }
+        }
+
+        // Select this row - cache the current class and set to selected class
+        kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"] = row.className;
+        row.className = trSelectedClass;
+
+    }
 
     console.log(prefix + "Exiting");
 }

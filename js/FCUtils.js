@@ -39,6 +39,9 @@ fc.utils.isValidVar = function(obj) {
     return !fc.utils.isInvalidVar(obj);
 }
 
+//
+///////////////////////////////////////////////////////////////////////////////
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -353,6 +356,8 @@ fc.utils.isOnlyNullProperties = function(obj) {
 
     return true;
 }
+
+
 
 // Dump an object to string representation for diagnostic output
 fc.utils.objToString = function (obj, sDelim) {

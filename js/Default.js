@@ -36,13 +36,17 @@ kawasu.orders.init = function () {
     styleDefn["thClass"] = "thTestClassLarge";
     styleDefn["trClass"] = "trTestClassLarge";
 
+    // If you set a selected class, you get selectable functionality
+    styleDefn["trSelectedClass"] = "trSelectedTestClassLarge";
+
+
     /* Some diags to check the table building part is OK
     var myRawTable = kawasu.dynatable.buildRawTable(
-        "myRawTable",
-        arrData,
-        kawasu.dynatable.buildHeaderData(arrData),
-        styleDefn,
-        10);
+    "myRawTable",
+    arrData,
+    kawasu.dynatable.buildHeaderData(arrData),
+    styleDefn,
+    10);
 
     $("#divContainer").append(myRawTable);
     */
@@ -51,12 +55,12 @@ kawasu.orders.init = function () {
     var myDynatable = kawasu.dynatable.build(
         arrData,
         styleDefn,
-        "myLargeDynatable", 
+        "myLargeDynatable",
         10,
         true); // Extend last column option
-    
+
     $("#divContainer").append(myDynatable);
-    
+
 
     console.log(prefix + "Exiting");
 }
