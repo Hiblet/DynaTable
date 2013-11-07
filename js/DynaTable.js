@@ -18,7 +18,30 @@ var kawasu = kawasu || {};
 
 if (fc.utils.isInvalidVar(kawasu.dynatable)) { kawasu.dynatable = new Object(); }
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Set some class variables up
+//
+kawasu.dynatable.config = new Object();
+kawasu.dynatable.config.sTableHeaderPrefix = "table_";
+kawasu.dynatable.config.sTableHeaderSuffix = "_Header";
+kawasu.dynatable.config.sDivHeaderPrefix = "div_";
+kawasu.dynatable.config.sDivHeaderSuffix = "_Header";
+kawasu.dynatable.config.sDivBodyPrefix = "div_";
+kawasu.dynatable.config.sDivBodySuffix = "_Body";
+kawasu.dynatable.config.sDivOuterPrefix = "div_";
+kawasu.dynatable.config.sDivOuterSuffix = "_Outer";
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
 // ENTRY POINT
+//
+
 kawasu.dynatable.build = function (arrData, styleDefn, sTableID, nRowsToShow, bExtendLastColOverScrollbar) {
     var prefix = "kawasu.dynatable.build() - ";
     console.log(prefix + "Entering");
@@ -184,12 +207,15 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
         return;
     }
 
+    var sTable = table.id;
+
     table.style.tableLayout = "auto";
     var arrayColumnWidths = kawasu.dynatable.getTableColumnWidths(table);
     var sizeTable = kawasu.dynatable.getTableSize(table); // This is the size before the table is cut in two
 
     // Clone the table to make a header only
     var tableHeader = table.cloneNode(true);
+    tableHeader.id = kawasu.dynatable.config.sTableHeaderPrefix + sTable + kawasu.dynatable.config.sTableHeaderSuffix;
     kawasu.dynatable.makeHeaderOnly(tableHeader);
 
     // Hide the header row on the data part of the table
@@ -201,7 +227,7 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     if (kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trSelectedClass")) {
         for (var i = 0; i < table.rows.length; ++i) {
             var tr = table.rows[i];
-            for (var j = 0; j < tr.cells.length; ++j) {                
+            for (var j = 0; j < tr.cells.length; ++j) {
                 fc.utils.addEvent(tr.cells[j], "click", kawasu.dynatable.dataCell_onClick);
             }
         }
@@ -222,18 +248,19 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     // Get scrollbar dimensions
     var sbWidth = fc.utils.getScrollBarWidth();
     var sbHeight = fc.utils.getScrollBarHeight();
+
+    // Extend the last column over the scrollbar, if that is required
     if (bExtendLastCol) {
         kawasu.dynatable.extendLastColumnOverScrollbar(tableHeader, sbWidth);
     }
 
+    // Make into a sortable table
+    kawasu.dynatable.makeHeaderSortable(table,tableHeader);
+
     // Create a div to hold the header and the body.
     // The header and body are in a div that is fixed height, but unlimited width
-    var sTable = table.id;
-    var sDivOuterPrefix = "div_";
-    var sDivOuterSuffix = "_Outer";
-
     var divOuter = document.createElement("div");
-    divOuter.id = sDivOuterPrefix + sTable + sDivOuterSuffix;
+    divOuter.id = kawasu.dynatable.config.sDivOuterPrefix + sTable + kawasu.dynatable.config.sDivOuterSuffix;
     divOuter.style.overflowX = "scroll";
     divOuter.style.overflowY = "hidden";
     divOuter.style.height = (sizeTableHeader.height + sizeTableBody.height + sbHeight).toString() + "px";
@@ -242,11 +269,9 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     //divOuter.style.width = (maxTableWidth + sbWidth +1).toString() + "px";
 
     // Create a div to hold the header
-    var sDivHeaderPrefix = "div_";
-    var sDivHeaderSuffix = "_Header";
     var divHeader = document.createElement("div");
     divHeader.style.overflow = "hidden"; // There should be no overflow, but just in case...
-    divHeader.id = sDivHeaderPrefix + sTable + sDivHeaderSuffix;
+    divHeader.id = kawasu.dynatable.config.sDivHeaderPrefix + sTable + kawasu.dynatable.config.sDivHeaderSuffix;
     divHeader.style.height = (sizeTableHeader.height).toString() + "px";
 
     // Optionally add in the width of the scrollbar to this div width
@@ -254,12 +279,10 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     divHeader.style.width = sDivHeaderWidth;
 
     // Create a div to hold the body
-    var sDivBodyPrefix = "div_";
-    var sDivBodySuffix = "_Body";
     var divBody = document.createElement("div");
     divBody.style.overflowX = "hidden";
     divBody.style.overflowY = "scroll";
-    divBody.id = sDivBodyPrefix + sTable + sDivBodySuffix;
+    divBody.id = kawasu.dynatable.config.sDivBodyPrefix + sTable + kawasu.dynatable.config.sDivBodySuffix;
     divBody.style.height = (sizeTableBody.height).toString() + "px";
     divBody.style.width = (maxTableWidth + sbWidth + 1).toString() + "px";
 
@@ -488,44 +511,170 @@ kawasu.dynatable.dataCell_onClick = function () {
     console.log(prefix + "Exiting");
 }
 
-/*
-kawasu.dynatable.removeTableBlankRows = function (table) {
-    var prefix = "kawasu.dynatable.removeTableBlankRows() - ";
+kawasu.dynatable.getSelectedRow = function (table) {
+    var prefix = "kawasu.dynatable.getSelectedRow() - ";
     console.log(prefix + "Entering");
 
-    // !!! NOT YET TESTED OMG DO NOT USE !!!
+    // Return a reference to the selected row.  The caller can then
+    // compare data in the row to data in their original data set to 
+    // determine what element in the arrData array has been selected.
 
-    // Iterate rows and remove any where cells only contain whitespace
-    var arrayIndexOfBlankRows = [];
-    var bHasData = false;
+    if (isInvalidVar(table)) {
+        console.log(prefix + "ERROR: No argument supplied; Expected: Reference to a table.");
+        return;
+    }
 
     for (var i = 0; i < table.rows.length; ++i) {
-        //table.rows[i] is the current row
-
-        bHasData = false; // Start, assume this row has no data until we know otherwise        
-        for (var j = 0; (j < table.rows[i].cells.length) && (bHasData == false); ++j) {
-            var content = fc.utils.textContent(table.rows[i].cells[j]);
-            if (!fc.utils.isEmptyStringOrWhiteSpace(content)) {
-                bHasData = true;
-            }
-        }
-
-        if (j == table.rows.cells.length) {
-            // We iterated the row right to the end and found no data.
-            // Remember this row to delete later
-            arrayIndexOfBlankRows.push(i);
+        if (table.rows[i].className == trSelectedClass) {
+            // Found the selected row
+            console.log(prefix + "INFO: Selected row found, return reference to row.");
+            console.log(prefix + "Exiting");
+            return table.rows[i];
         }
     }
 
-    // Iterate the array of rows to delete backwards, deleting rows as we go.
-    // Going backwards ensures that the index is always correct.
-    for (var k = arrayIndexOfBlankRows.length; k > 0; --k) {
-        // (k-1) gives you the index of the element to deref, to get the row index to delete
-        var indexToDelete = arrayIndexOfBlankRows[k - 1];
-        table.deleteRow(indexToDelete);
+    console.log(prefix + "INFO: No selected row was found.");
+    console.log(prefix + "Exiting");
+}
+
+
+kawasu.dynatable.makeHeaderSortable = function (table,tableHeader) {
+    var prefix = "kawasu.dynatable.makeHeaderSortable() - ";
+    console.log(prefix + "Entering");
+
+    // Header table should have one row, rows[0].
+    // Attach a function to header cell onclick event to trigger sorting.
+    var cells = tableHeader.rows[0].cells;
+    for (var i=0; i < cells.length; ++i) {
+        (function (n) {                                                         // Call this anonymous function with argument i
+            cells[i].onclick = function () {                                    // Attach a function with a closed n value to each header's onclick event
+                kawasu.dynatable.sortrowsFlipOrder(table,tableHeader, n);                   // Close off an instance of sortrows with value n and make it a fn
+            };
+        } (i));
     }
 
     console.log(prefix + "Exiting");
 }
 
-*/
+kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) {
+    var prefix = "kawasu.dynatable.sortrowsFlipOrder() - ";
+    console.log(prefix + "Entering");
+
+    // Wrapper function that checks the column being ordered, and if it is the
+    // same as the last column used for ordering, reverses the sort order
+    var sortColCName = table.id + "_SortCol";
+    var sortOrderCName = table.id + "_SortOrder";
+
+    var savedCol = fc.utils.getCookie(sortColCName);
+    if (savedCol != null && savedCol != "") {
+        // We have a saved column - is it this column
+        if (savedCol == n.toString()) {
+            // We have ordered this column before, flip the order
+            var savedOrder = fc.utils.getCookie(sortOrderCName);
+            if (savedOrder != null && savedOrder != "") {
+                // We have a saved ordering criteria, reverse it and save it
+                if (savedOrder == "ASC") {
+                    fc.utils.setCookie(sortOrderCName, "DESC", 3);
+                }
+                else {
+                    fc.utils.setCookie(sortOrderCName, "ASC", 3);
+                }
+            }
+        }
+    }
+
+    kawasu.dynatable.sortrows(table, tableHeader,n, comparator);
+
+    console.log(prefix + "Exiting");
+}
+
+
+// V2
+kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
+    var prefix = "kawasu.dynatable.sortrows() - ";
+    console.log(prefix + "Entering");
+
+    var bColIsNumeric = fc.utils.isColumnNumeric(table, n);
+
+    // Get the cookie settings, if they exist
+    var sortOrder = "DESC";
+    var sortOrderCName = table.id + "_SortOrder";
+    var lastSortOrder = fc.utils.getCookie(sortOrderCName);
+    if (lastSortOrder != null && lastSortOrder != "") {
+        // Re-apply the saved sort order
+        sortOrder = lastSortOrder;
+    }
+    // else, remains "DESC"
+
+    var rows = table.getElementsByTagName("tr");                                // Get all rows
+
+    rows = Array.prototype.slice.call(rows, 0);                                 // Convert to array as a snapshot
+
+    var rowsBlank = fc.utils.getBlankRows(rows);                                // Extract all blank rows to another storage object
+
+    rows.sort(function (row1, row2) {
+        var cell1 = row1.getElementsByTagName("td")[n];                         // Get nth cell
+        var cell2 = row2.getElementsByTagName("td")[n];                         // of both rows
+
+        // Handle undefined cell case
+        if (typeof (cell1) == 'undefined' && typeof (cell2) == 'undefined') {
+            return 0;
+        }
+        else if (typeof (cell1) == 'undefined') {                                 // cell2 wins, return 1
+            return 1;
+        }
+        else if (typeof (cell2) == 'undefined') {                                 // cell1 wins, return -1
+            return -1;
+        }
+
+        // Cells are defined, extract values for comparison
+        var val1 = cell1.textContent || cell1.innerText;
+        var val2 = cell2.textContent || cell2.innerText;
+
+        if (comparator) {
+            // If you've been passed a fn to use as a comparator, use it
+            return comparator(val1, val2);
+        }
+
+        if (bColIsNumeric)
+            return fc.utils.numericComparator(val1, val2);
+
+        // else, do a default comparison
+        return fc.utils.defaultComparator(val1, val2);
+
+    }); // end of rows.sort(fn)
+
+    // Append rows into tbody in sorted order.
+    // Note that the rows are implicitly removed, and that any nodes that are 
+    // not rows <tr> will be above the sorted rows
+
+    var i = 0;
+    if (sortOrder == "ASC") {
+        // Ascending order
+        for (; i < rows.length; i++) {
+            table.appendChild(rows[i]);
+        }
+    }
+    else {
+        // Descending order
+        i = rows.length - 1; // Start at last row
+        for (; i >= 0; --i) {
+            table.appendChild(rows[i]);
+        }
+    }
+
+    // Add the blank rows back on
+    var countBlankRows = rowsBlank.length;
+    for (var i = 0; i < countBlankRows; ++i) {
+        table.appendChild(rowsBlank[i][0]);
+    }
+
+    // Save the sort column and order
+    var sortColCName = table.id + "_SortCol";
+    fc.utils.setCookie(sortColCName, n.toString(10), 3);
+    fc.utils.setCookie(sortOrderCName, sortOrder, 3);
+
+    console.log(prefix + "Exiting");
+
+}   // end of sortrows() V2
+

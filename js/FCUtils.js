@@ -73,6 +73,9 @@ fc.utils.isEmptyStringOrWhiteSpace = function (obj) {
         return true;
     if (obj === " ")
         return true;
+    // HTML space
+    if (obj === "&nbsp;")
+        return true;
     // A non breaking space char is code 160 
     // \xA0 Char Code 160
     if (obj == "\xA0")
@@ -1056,7 +1059,7 @@ fc.utils.getColIndicesByNames = function (table, arrayColumnNames) {
 // a distinct table.
 fc.utils.sortrowsWithDistinctHeaders = function (table, n, comparator) {
 
-    var bColIsNumeric = isColumnNumeric(table, n);
+    var bColIsNumeric = fc.utils.isColumnNumeric(table, n);
 
     if (sHeaderSuffix == null || sHeaderPrefix == null)
         return;
@@ -1122,10 +1125,10 @@ fc.utils.sortrowsWithDistinctHeaders = function (table, n, comparator) {
         }
 
         if (bColIsNumeric)
-            return numericComparator(val1, val2);
+            return fc.utils.numericComparator(val1, val2);
 
         // else, do a default comparison
-        return defaultComparator(val1, val2);
+        return fc.utils.defaultComparator(val1, val2);
 
     });         // end of rows.sort(fn)
 
@@ -1216,7 +1219,7 @@ fc.utils.isBlankRow = function (row) {
     var bRowIsBlank = true;
     for (var i = 0; (i < countCells && bRowIsBlank == true); ++i) {
         var sCell = row.cells[i].innerHTML;
-        if (!IsEmptyStringOrWhiteSpace(sCell))
+        if (!fc.utils.isEmptyStringOrWhiteSpace(sCell))
             bRowIsBlank = false;
     }
     return bRowIsBlank;
@@ -1335,11 +1338,11 @@ fc.utils.numericComparator = function (val1, val2) {
     */
 
     // Null or Empty String Handling
-    if (IsEmptyStringOrWhiteSpace(val1) && IsEmptyStringOrWhiteSpace(val2))
+    if (fc.utils.isEmptyStringOrWhiteSpace(val1) && fc.utils.isEmptyStringOrWhiteSpace(val2))
         return 0;
-    if (IsEmptyStringOrWhiteSpace(val1))
+    if (fc.utils.isEmptyStringOrWhiteSpace(val1))
         return -1;
-    if (IsEmptyStringOrWhiteSpace(val2))
+    if (fc.utils.isEmptyStringOrWhiteSpace(val2))
         return 1;
     // else we have two non-white space strings
 
@@ -1429,7 +1432,7 @@ function SwapCSSClass(sCurrentClass, sClassToRemove, sClassToAdd) {
     var indexClassToRemove = -1;
     var arrayClassesSize = arrayClasses.length;
 
-    if (!IsEmptyString(sClassToRemove)) {
+    if (!fc.utils.isEmptyString(sClassToRemove)) {
         // We have a class to remove
 
         var i = 0;
@@ -1442,7 +1445,7 @@ function SwapCSSClass(sCurrentClass, sClassToRemove, sClassToAdd) {
         }
     }
 
-    if (!IsEmptyString(sClassToAdd)) {
+    if (!fc.utils.isEmptyString(sClassToAdd)) {
         // We have a class to add
 
         if (indexClassToRemove == -1) {
