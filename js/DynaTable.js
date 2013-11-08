@@ -224,7 +224,7 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     table.deleteRow(0);
 
     // If there is a selected style, attach a click function for selectable functionality
-    if (kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trSelectedClass")) {
+    if (kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trClassSelected")) {
         for (var i = 0; i < table.rows.length; ++i) {
             var tr = table.rows[i];
             for (var j = 0; j < tr.cells.length; ++j) {
@@ -255,7 +255,10 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     }
 
     // Make into a sortable table
-    kawasu.dynatable.makeHeaderSortable(table,tableHeader);
+    kawasu.dynatable.makeHeaderSortable(table, tableHeader);
+
+    // Zebra stripe if styles are set
+    kawasu.dynatable.applyZebraStripes(table);
 
     // Create a div to hold the header and the body.
     // The header and body are in a div that is fixed height, but unlimited width
@@ -461,16 +464,16 @@ kawasu.dynatable.dataCell_onClick = function () {
     var table = row.parentNode;
     var sTableID = table.id;
 
-    var trSelectedClass = kawasu.dynatable[sTableID]["styleDefn"]["trSelectedClass"];
+    var trClassSelected = kawasu.dynatable[sTableID]["styleDefn"]["trClassSelected"];
     var trClass = kawasu.dynatable[sTableID]["styleDefn"]["trClass"];
 
-    if (row.className == trSelectedClass) {
+    if (row.className == trClassSelected) {
         // This row is already selected, 
         // so toggle it to deselected
 
-        if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trCachedDeselectedClass")) {
+        if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trClassCachedDeselected")) {
             // There is a previous cached class, so reset to this
-            row.className = kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"];
+            row.className = kawasu.dynatable[sTableID]["styleDefn"]["trClassCachedDeselected"];
         }
         else {
             // There is no previous cached class, that's dodgy, warn about it
@@ -484,14 +487,14 @@ kawasu.dynatable.dataCell_onClick = function () {
 
         var bFound = false;
         for (var i = 0; (i < table.rows.length) && (bFound == false); ++i) {
-            if (table.rows[i].className == trSelectedClass) {
+            if (table.rows[i].className == trClassSelected) {
                 // Found the selected row
                 bFound = true; // early exit from loop
 
                 // Set to cached deselected state
-                if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trCachedDeselectedClass")) {
+                if (kawasu.dynatable[sTableID]["styleDefn"].hasOwnProperty("trClassCachedDeselected")) {
                     // There is a previous cached class, so reset to this
-                    table.rows[i].className = kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"];
+                    table.rows[i].className = kawasu.dynatable[sTableID]["styleDefn"]["trClassCachedDeselected"];
                 }
                 else {
                     // There is no previous cached class, that's dodgy, warn about it
@@ -503,9 +506,8 @@ kawasu.dynatable.dataCell_onClick = function () {
         }
 
         // Select this row - cache the current class and set to selected class
-        kawasu.dynatable[sTableID]["styleDefn"]["trCachedDeselectedClass"] = row.className;
-        row.className = trSelectedClass;
-
+        kawasu.dynatable[sTableID]["styleDefn"]["trClassCachedDeselected"] = row.className;
+        row.className = trClassSelected;
     }
 
     console.log(prefix + "Exiting");
@@ -525,7 +527,7 @@ kawasu.dynatable.getSelectedRow = function (table) {
     }
 
     for (var i = 0; i < table.rows.length; ++i) {
-        if (table.rows[i].className == trSelectedClass) {
+        if (table.rows[i].className == trClassSelected) {
             // Found the selected row
             console.log(prefix + "INFO: Selected row found, return reference to row.");
             console.log(prefix + "Exiting");
@@ -587,7 +589,6 @@ kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) 
 
     console.log(prefix + "Exiting");
 }
-
 
 // V2
 kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
@@ -669,12 +670,46 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
         table.appendChild(rowsBlank[i][0]);
     }
 
+    kawasu.dynatable.applyZebraStripes(table);
+
     // Save the sort column and order
     var sortColCName = table.id + "_SortCol";
     fc.utils.setCookie(sortColCName, n.toString(10), 3);
     fc.utils.setCookie(sortOrderCName, sortOrder, 3);
 
     console.log(prefix + "Exiting");
+}    // end of sortrows() V2
 
-}   // end of sortrows() V2
 
+kawasu.dynatable.applyZebraStripes = function (table) {
+    var prefix = "kawasu.dynatable.applyZebraStripes() - ";
+    console.log(prefix + "Entering");
+
+    if (kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trClassOdd") &&
+        kawasu.dynatable[table.id]["styleDefn"].hasOwnProperty("trClassEven")) {
+        var trClassOdd = kawasu.dynatable[table.id]["styleDefn"]["trClassOdd"];
+        var trClassEven = kawasu.dynatable[table.id]["styleDefn"]["trClassEven"];
+
+        // Iterate table, apply styles
+        for (var i = 0; i < table.rows.length; ++i) {
+            if (table.rows[i].className != kawasu.dynatable[table.id]["styleDefn"]["trClassSelected"]) {
+                if ((i % 2) == 0) {
+                    // Even
+                    table.rows[i].className = trClassEven;
+                }
+                else {
+                    // Odd
+                    table.rows[i].className = trClassOdd;
+                }
+            }
+        }
+    }
+    else {
+        console.log(prefix + "INFO: No styles (trClassOdd/trClassEven)found for Zebra Striping.");
+    }
+
+    console.log(prefix + "Exiting");
+}
+
+
+//kawasu.dynatable[sTableID]["styleDefn"] = styleDefn;

@@ -24,8 +24,6 @@ kawasu.orders.init = function () {
     var prefix = "kawasu.orders.init() - ";
     console.log(prefix + "Entering");
 
-    //kawasu.orders.buildDynaTable(); // gone
-
     // BUILD A TEST DATA SET
     var arrData = kawasu.orders.createTestData();
 
@@ -37,7 +35,12 @@ kawasu.orders.init = function () {
     styleDefn["trClass"] = "trTestClassLarge";
 
     // If you set a selected class, you get selectable functionality
-    styleDefn["trSelectedClass"] = "trSelectedTestClassLarge";
+    styleDefn["trClassSelected"] = "trSelectedTestClassLarge";
+
+    // If you set odd/even row classes, you get zebra stripes
+    styleDefn["trClassOdd"] = "trTestClassLargeOdd";
+    styleDefn["trClassEven"] = "trTestClassLargeEven";
+
 
 
     /* Some diags to check the table building part is OK
