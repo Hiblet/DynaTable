@@ -81,6 +81,19 @@ th
     background-color:White;
 }
 
+.trTestClassLargeOdd
+{
+    min-height:30px;
+    background-color:#FAC5F2;
+}
+
+.trTestClassLargeEven
+{
+    min-height:30px;
+    background-color:#D3C5FA;
+}
+
+
 .trSelectedTestClassLarge 
 {
     min-height:30px;
