@@ -147,6 +147,12 @@ kawasu.orders.hookupHandlers = function () {
 
     var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
     fc.utils.addEvent(btnToggleMultiSelect, "click", kawasu.orders.btnToggleMultiSelect_onClick);
+
+    var btnSelectAll = document.getElementById("btnSelectAll");
+    fc.utils.addEvent(btnSelectAll, "click", kawasu.orders.btnSelectAll_onClick);
+
+    var btnDeselectAll = document.getElementById("btnDeselectAll");
+    fc.utils.addEvent(btnDeselectAll, "click", kawasu.orders.btnDeselectAll_onClick);
 }
 
 kawasu.orders.btnToggleMultiSelect_onClick = function (){
@@ -172,3 +178,20 @@ kawasu.orders.btnToggleMultiSelect_setBtnText = function (bState) {
     btnToggleMultiSelect.value = "Toggle MultiSelect: " + (bState ? "T" : "F");
 }
 
+kawasu.orders.btnSelectAll_onClick = function () {
+    var prefix = "kawasu.orders.btnSelectAll_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.setSelectAll("myDynaTable",true);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.orders.btnDeselectAll_onClick = function () {
+    var prefix = "kawasu.orders.btnDeselectAll_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.setSelectAll("myDynaTable", false);
+
+    console.log(prefix + "Exiting");
+}
