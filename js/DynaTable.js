@@ -53,6 +53,10 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bM
     // Default bExtendLastColOverScrollbar argument value is false
     bExtendLastColOverScrollbar = (typeof bExtendLastColOverScrollbar !== 'undefined') ? bExtendLastColOverScrollbar : false;
 
+    if (arrData.length == 0) {
+        console.log(prefix + "ERROR: No data passed to table creation routine build(), inbound array was zero length.");
+        return;
+    }
 
     // Cache the settings for use later.  All data pertaining to this table
     // will then be stored in this area.

@@ -25,7 +25,7 @@ kawasu.orders.init = function () {
     console.log(prefix + "Entering");
 
     // BUILD A TEST DATA SET
-    var arrData = kawasu.orders.createTestData();
+    var arrData = kawasu.orders.createZeroTestData();
 
     // BUILD A STYLE OBJECT TO DEFINE THE TABLE STYLE
     var styleDefn = new Object();
@@ -75,7 +75,28 @@ kawasu.orders.init = function () {
 $(window).load(kawasu.orders.init);
 
 
+kawasu.orders.createZeroTestData = function () {
+    var prefix = "kawasu.orders.createZeroTestData() - ";
+    console.log(prefix + "Entering");
 
+    // Make a Json object to build a table out of
+    var array = [];
+
+    var obj1 = {
+        "Contract": "",
+        "Side": "",
+        "Qty": "",
+        "Price": "",
+        "StopPrice": "",
+        "Comment": ""
+    };
+
+    array.push(obj1);
+
+    return array;
+
+    console.log(prefix + "Exiting");
+}
 
 kawasu.orders.createTestData = function () {
     var prefix = "kawasu.orders.createTestData() - ";
