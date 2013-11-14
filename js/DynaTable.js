@@ -865,3 +865,37 @@ kawasu.dynatable.resetRows = function (sTableId, table, bPreserveSelectedState) 
 
     console.log(prefix + "Exiting");
 }
+
+
+kawasu.dynatable.setSelectAll = function (sTableId, bSelectState) {
+    var prefix = "kawasu.dynatable.setSelectAll() - ";
+    console.log(prefix + "Entering");
+
+    if (typeof bSelectState === 'undefined') {
+        console.log(prefix + "ERROR: No parameter passed to this function.  No default can be assumed.  No action taken.");
+        console.log(prefix + "Exiting");
+        return;
+    }
+
+    var bMultiSelect = kawasu.dynatable[sTableId]["bMultiSelect"];
+    var table = document.getElementById(sTableId);
+
+    if (bSelectState == true) {
+        // Select all - only possible in multi select mode
+        if (bMultiSelect) {
+            var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
+            for (var i = 0; i < table.rows.length; ++i) {
+                row = table.rows[i];
+                row.className = trClassSelected;
+            }
+        }
+        else {
+            console.log(prefix + "WARNING: bMultiSelect is false,  mode is SingleSelect, cannot select all.  No action taken.");
+        }
+    }
+    else {
+        // Deselect all
+        kawasu.dynatable.resetRows(sTableId, table);
+    }
+    console.log(prefix + "Exiting");
+}

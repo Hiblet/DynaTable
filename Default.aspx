@@ -21,6 +21,8 @@
     <div>
     
         <input type="button" id="btnToggleMultiSelect" value="Toggle MultiSelect: ?" />
+        <input type="button" id="btnSelectAll" value="Select All" />
+        <input type="button" id="btnDeselectAll" value="Deselect All" />
 
         <br />
         <br />
