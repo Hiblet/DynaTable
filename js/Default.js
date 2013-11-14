@@ -55,15 +55,19 @@ kawasu.orders.init = function () {
     */
 
     // Dynatable testing
-    var myDynatable = kawasu.dynatable.build(
+    var myDynaTable = kawasu.dynatable.build(
         arrData,
         styleDefn,
-        "myLargeDynatable",
+        "myDynaTable",
         10,
+        true, // MultiSelect Mode 
         true); // Extend last column option
 
-    $("#divContainer").append(myDynatable);
+    $("#divContainer").append(myDynaTable);
 
+    kawasu.orders.hookupHandlers();
+    
+    kawasu.orders.btnToggleMultiSelect_setBtnText();
 
     console.log(prefix + "Exiting");
 }
@@ -135,34 +139,36 @@ kawasu.orders.createTestDataLargeRandom = function () {
     console.log(prefix + "Exiting");
 }
 
-/* REMOVED - Javascript cloneNode() does not copy event handlers
-kawasu.orders.headerCell_onClick = function () {
-    var prefix = "kawasu.orders.header_onClick() - ";
+///////////////////////////////////////////////////////////////////////////////
+// HANDLERS
+//
+
+kawasu.orders.hookupHandlers = function () {
+
+    var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
+    fc.utils.addEvent(btnToggleMultiSelect, "click", kawasu.orders.btnToggleMultiSelect_onClick);
+}
+
+kawasu.orders.btnToggleMultiSelect_onClick = function (){
+    var prefix = "kawasu.orders.btnToggleMultiSelect_onClick() - ";
     console.log(prefix + "Entering");
 
-    // Function to run when table header cell is clicked
-    var sHeader = fc.utils.textContent(this);
-    console.log(prefix + "HEADERCELL CLICKED >" + sHeader + "<");
+    var bState = kawasu.dynatable.multiSelect("myDynaTable") ?
+        kawasu.dynatable.multiSelect("myDynaTable", false) :
+        kawasu.dynatable.multiSelect("myDynaTable", true);
+
+    kawasu.orders.btnToggleMultiSelect_setBtnText(bState);
 
     console.log(prefix + "Exiting");
 }
-*/
 
-/*
-kawasu.orders.dataCell_onClick = function () {
-    var prefix = "kawasu.orders.data_onClick() - ";
-    console.log(prefix + "Entering");
+kawasu.orders.btnToggleMultiSelect_setBtnText = function (bState) {
+    // If state unknown, go get it...
+    bState = (typeof bState === 'undefined') ?
+        kawasu.dynatable.multiSelect("myDynaTable") : bState;
 
-    // Function to run when table header cell is clicked
-    var sData = fc.utils.textContent(this);
-    console.log(prefix + "DATACELL CLICKED >" + sData + "<");
-
-    console.log(prefix + "Exiting");
+    // Set the button text to reveal current state
+    var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
+    btnToggleMultiSelect.value = "Toggle MultiSelect: " + (bState ? "T" : "F");
 }
-*/
-
-
-
-
-
 

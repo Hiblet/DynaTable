@@ -20,6 +20,11 @@
     <form id="form1" runat="server">
     <div>
     
+        <input type="button" id="btnToggleMultiSelect" value="Toggle MultiSelect: ?" />
+
+        <br />
+        <br />
+    
         <div id="divContainer">
         </div>
 
