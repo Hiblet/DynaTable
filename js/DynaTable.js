@@ -144,14 +144,22 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
         return;
     }
 
+    // REMOVED - This 'perverts' the source array, and if anything else accesses the
+    //           array it will encounter the added objects.
+    /*
     // Pad the data array so that the table gets padded out too
     if (arrData.length < nRowsMinimum) {
-        var paddingRows = nRowsMinimum - arrData.length;
-        for (var j = 0; j < paddingRows; ++j) {
-            var objBlank = new Object();
-            arrData.push(objBlank);
-        }
+    var paddingRows = nRowsMinimum - arrData.length;
+    for (var j = 0; j < paddingRows; ++j) {
+    var objBlank = new Object();
+    arrData.push(objBlank);
     }
+    }
+    */
+
+    // Instead, calc how many blank rows required and pad later
+    var nPaddingRows = nRowsMinimum - arrData.length;
+
 
     // Make table
     var table = document.createElement("table");
@@ -184,6 +192,8 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
 
     var classDataCell = styleDefn["tdClass"] || "";
     var sEmptyString = "&nbsp";
+
+    // Real Data
     for (var i = 0; i < arrData.length; ++i) {
         var tr = document.createElement("tr");
         tr.className = classRow;
@@ -198,6 +208,24 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
                 var td = document.createElement("td");
                 var tdContent = arrData[i][prop] || sEmptyString;
                 td.innerHTML = tdContent;
+                td.className = classDataCell;
+                tr.appendChild(td);
+            }
+        }
+
+        table.appendChild(tr);
+    }
+
+    // Padding
+    for (var i = 0; i < nPaddingRows; ++i) {
+        var tr = document.createElement("tr");
+        tr.className = classRow;
+
+        for (var prop in header) {
+            if (header.hasOwnProperty(prop)) {
+                // For this column (header), create an empty data cell.
+                var td = document.createElement("td");
+                td.innerHTML = sEmptyString;
                 td.className = classDataCell;
                 tr.appendChild(td);
             }
