@@ -24,8 +24,6 @@ kawasu.orders.init = function () {
     var prefix = "kawasu.orders.init() - ";
     console.log(prefix + "Entering");
 
-    // BUILD A TEST DATA SET
-    var arrData = kawasu.orders.createZeroTestData();
 
     // BUILD A STYLE OBJECT TO DEFINE THE TABLE STYLE
     var styleDefn = new Object();
@@ -41,18 +39,8 @@ kawasu.orders.init = function () {
     styleDefn["trClassOdd"] = "trTestClassLargeOdd";
     styleDefn["trClassEven"] = "trTestClassLargeEven";
 
-
-
-    /* Some diags to check the table building part is OK
-    var myRawTable = kawasu.dynatable.buildRawTable(
-    "myRawTable",
-    arrData,
-    kawasu.dynatable.buildHeaderData(arrData),
-    styleDefn,
-    10);
-
-    $("#divContainer").append(myRawTable);
-    */
+    // BUILD A TEST DATA SET
+    var arrData = kawasu.orders.createTestDataA();
 
     // Dynatable testing
     var myDynaTable = kawasu.dynatable.build(
@@ -65,8 +53,12 @@ kawasu.orders.init = function () {
 
     $("#divContainer").append(myDynaTable);
 
+    // BUILD A 2ND TEST DATA SET
+    var arrDataB = kawasu.orders.createTestDataB();
+    kawasu.dynatable.rebuild("myDynaTable", arrDataB);
+
     kawasu.orders.hookupHandlers();
-    
+
     kawasu.orders.btnToggleMultiSelect_setBtnText();
 
     console.log(prefix + "Exiting");
@@ -98,8 +90,8 @@ kawasu.orders.createZeroTestData = function () {
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.createTestData = function () {
-    var prefix = "kawasu.orders.createTestData() - ";
+kawasu.orders.createTestDataA = function () {
+    var prefix = "kawasu.orders.createTestDataA() - ";
     console.log(prefix + "Entering");
 
     // Make a Json object to build a table out of
@@ -137,6 +129,53 @@ kawasu.orders.createTestData = function () {
     console.log(prefix + "Exiting");
 }
 
+kawasu.orders.createTestDataB = function () {
+    var prefix = "kawasu.orders.createTestDataB() - ";
+    console.log(prefix + "Entering");
+
+    // Make a Json object to build a table out of
+    var array = [];
+
+    var obj1 = {
+        "Contract": "BODGET",
+        "Side": "SELL",
+        "Qty": "24",
+        "Price": "1.03"
+    };
+
+    var obj2 = {
+        "Contract": "DIGIT",
+        "Side": "SELL",
+        "Comment": "This would appear to be quite a long comment, really.  As comments go.",
+        "Qty": "8",
+        "Price": "101.32"
+    };
+
+    var obj3 = {
+        "Contract": "BILCO",
+        "Side": "SELL",
+        "Qty": "1987",
+        "Price": "9.99",
+        "StopPrice": "232"
+    };
+
+    var obj4 = {
+        "Contract": "JAGUAR",
+        "Side": "BUY",
+        "Qty": "323",
+        "Price": "1",
+        "StopPrice": "783"
+    };
+
+    array.push(obj1);
+    array.push(obj2);
+    array.push(obj3);
+    array.push(obj4);
+
+    return array;
+
+    console.log(prefix + "Exiting");
+}
 
 
 kawasu.orders.createTestDataLargeRandom = function () {
