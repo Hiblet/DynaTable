@@ -33,7 +33,7 @@ kawasu.dynatable.config.sDivBodySuffix = "_Body";
 kawasu.dynatable.config.sDivOuterPrefix = "div_";
 kawasu.dynatable.config.sDivOuterSuffix = "_Outer";
 
-
+kawasu.dynatable.config.sEmptyStringHtml = "&nbsp";
 
 
 
@@ -177,7 +177,7 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     // We have to add a data cell under each header cell.
 
     var classDataCell = styleDefn["tdClass"] || "";
-    var sEmptyString = "&nbsp";
+    var sEmptyString = kawasu.dynatable.config.sEmptyStringHtml; // "&nbsp";
 
     // Real Data
     for (var i = 0; i < arrData.length; ++i) {
@@ -613,9 +613,7 @@ kawasu.dynatable.getSelectedRows = function (table) {
     var prefix = "kawasu.dynatable.getSelectedRows() - ";
     console.log(prefix + "Entering");
 
-    // Return a reference to the selected rows.  The caller can then
-    // compare data in the row to data in their original data set to 
-    // determine what element in the arrData array has been selected.
+    // Return a reference to the selected rows.  
 
     var arrayRowsSelected = [];
     for (var i = 0; i < table.rows.length; ++i) {
@@ -628,13 +626,13 @@ kawasu.dynatable.getSelectedRows = function (table) {
     return arrayRowsSelected;
 }
 
-kawasu.dynatable.getSelectedRowIndices = function (table) {
-    var prefix = "kawasu.dynatable.getSelectedRowIndices() - ";
+kawasu.dynatable.getSelectedIndices = function (table) {
+    var prefix = "kawasu.dynatable.getSelectedIndices() - ";
     console.log(prefix + "Entering");
 
-    // Return a reference to the selected rows.  The caller can then
-    // compare data in the row to data in their original data set to 
-    // determine what element in the arrData array has been selected.
+    // Return array of indices for the selected rows.  
+    var sTableId = table.id;
+    var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
 
     var arrayRowsSelectedIndices = [];
     for (var i = 0; i < table.rows.length; ++i) {
@@ -658,7 +656,7 @@ kawasu.dynatable.makeHeaderSortable = function (table,tableHeader) {
     for (var i=0; i < cells.length; ++i) {
         (function (n) {                                                         // Call this anonymous function with argument i
             cells[i].onclick = function () {                                    // Attach a function with a closed n value to each header's onclick event
-                kawasu.dynatable.sortrowsFlipOrder(table,tableHeader, n);                   // Close off an instance of sortrows with value n and make it a fn
+                kawasu.dynatable.sortrowsFlipOrder(table,tableHeader, n);       // Close off an instance of sortrows with value n and make it a fn
             };
         } (i));
     }
@@ -693,15 +691,20 @@ kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) 
         }
     }
 
-    kawasu.dynatable.sortrows(table, tableHeader,n, comparator);
+    kawasu.dynatable.sortrowsV4(table, tableHeader,n, comparator);
 
     console.log(prefix + "Exiting");
 }
 
-// V2
-kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
-    var prefix = "kawasu.dynatable.sortrows() - ";
+kawasu.dynatable.sortrowsV4 = function (table, tableHeader, n, comparator) {
+    var prefix = "kawasu.dynatable.sortrows() [V3] - ";
     console.log(prefix + "Entering");
+
+    // Note: I need to keep the data and the rows 'in step', so that indices
+    // are the same.  That is a pre-requisite of deletion of selected items,
+    // I find the selecte row's indices and translate that to the data.
+    // To do that, temporarily unite the data to the row and sort together,
+    // then re-split.
 
     var bColIsNumeric = fc.utils.isColumnNumeric(table, n);
     var sTableId = table.id;
@@ -717,14 +720,29 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
     // else, remains "DESC"
 
     var rows = table.getElementsByTagName("tr");                                // Get all rows
-
     rows = Array.prototype.slice.call(rows, 0);                                 // Convert to array as a snapshot
-
     var rowsBlank = fc.utils.getBlankRows(rows);                                // Extract all blank rows to another storage object
 
-    rows.sort(function (row1, row2) {
-        var cell1 = row1.getElementsByTagName("td")[n];                         // Get nth cell
-        var cell2 = row2.getElementsByTagName("td")[n];                         // of both rows
+    var arrData = kawasu.dynatable[sTableId]["arrData"];
+
+    if (arrData.length != rows.length) {
+        // The two arrays should always be the same size
+        console.log(prefix + "ERROR: Data elements: >" + arrData.length + "< and Rows: >" + rows.length + "< - These should be equal, cannot sort together if they are not.");
+        return;
+    }
+
+    // Make combined array
+    var arrayAll = [];
+    for (var j = 0; j < arrData.length; ++j) {
+        var pair = new Object();
+        pair["data"] = arrData[j];
+        pair["row"] = rows[j];
+        arrayAll.push(pair);
+    }
+
+    arrayAll.sort(function (pair1, pair2) {
+        var cell1 = (pair1["row"]).getElementsByTagName("td")[n];                         // Get nth cell
+        var cell2 = (pair2["row"]).getElementsByTagName("td")[n];                         // of both rows
 
         // Handle undefined cell case
         if (typeof (cell1) == 'undefined' && typeof (cell2) == 'undefined') {
@@ -741,37 +759,30 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
         var val1 = cell1.textContent || cell1.innerText;
         var val2 = cell2.textContent || cell2.innerText;
 
-        if (comparator) {
-            // If you've been passed a fn to use as a comparator, use it
-            return comparator(val1, val2);
-        }
-
-        if (bColIsNumeric)
-            return fc.utils.numericComparator(val1, val2);
+        if (comparator) return comparator(val1, val2); // If you've been passed a fn to use as a comparator, use it
+        if (bColIsNumeric) return fc.utils.numericComparator(val1, val2);
 
         // else, do a default comparison
         return fc.utils.defaultComparator(val1, val2);
 
-    }); // end of rows.sort(fn)
+    }); // end of arrayAll.sort(function(){});
+
+    // If descending, reverse the data array
+    if (sortOrder == "DESC") arrayAll.reverse();
 
     // Append rows into tbody in sorted order.
     // Note that the rows are implicitly removed, and that any nodes that are 
     // not rows <tr> will be above the sorted rows
 
     var i = 0;
-    if (sortOrder == "ASC") {
-        // Ascending order
-        for (; i < rows.length; i++) {
-            table.appendChild(rows[i]);
-        }
+    var arrDataSorted = [];
+    for (; i < arrayAll.length; i++) {
+        table.appendChild(arrayAll[i]["row"]); // Put row back into table
+        arrDataSorted.push(arrayAll[i]["data"]); // Put data back into array
     }
-    else {
-        // Descending order
-        i = rows.length - 1; // Start at last row
-        for (; i >= 0; --i) {
-            table.appendChild(rows[i]);
-        }
-    }
+
+    // Save the sorted data as the current data
+    kawasu.dynatable[sTableId]["arrData"] = arrDataSorted;
 
     // Add the blank rows back on
     var countBlankRows = rowsBlank.length;
@@ -788,7 +799,9 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
 
     console.log(prefix + "Exiting");
 
-} // end of sortrows() V2
+}    // end of sortrows() V4
+
+
 
 kawasu.dynatable.multiSelect = function (sTableId,bMultiSelect) {
     var prefix = "kawasu.dynatable.multiSelect() - ";
@@ -892,4 +905,80 @@ kawasu.dynatable.setSelectAll = function (sTableId, bSelectState) {
         kawasu.dynatable.resetRows(sTableId, table);
     }
     console.log(prefix + "Exiting");
+}
+
+
+kawasu.dynatable.getColNameByIndex = function (n, tableHeader) {
+    var prefix = "kawasu.dynatable.getColNameByIndex() - ";
+    console.log(prefix + "Entering");
+
+    // Passed index n, retrieve the column name from tableHeader
+
+    var headerLength = tableHeader.rows[0].cells.length;
+    if (n >= headerLength) {
+        // Error, index requested is too big for this header
+        console.log(prefix + "ERROR: Index >" + n + "< requested from Header with length of >" + headerLength + "<; Cannot retrieve column name.");
+        return "";
+    }
+
+    var sHeaderText = fc.utils.textContent(tableHeader.rows[0].cells[n])
+
+    console.log(prefix + "Exiting; returning >" + sHeaderText + "<");
+    return sHeaderText;
+}
+
+
+kawasu.dynatable.deleteSelected = function (sTableId, bDeleteSourceData) {
+    var prefix = "kawasu.dynatable.deleteSelected() - ";
+    console.log(prefix + "Entering");
+
+    var table = document.getElementById(sTableId);
+    var array = kawasu.dynatable.getSelectedIndices(table);
+
+    kawasu.dynatable.itemsDelete(table, array, bDeleteSourceData);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceData) {
+    var prefix = "kawasu.dynatable.itemsDelete() - ";
+    console.log(prefix + "Entering");
+
+    if (arrRowsToDelete.length == 0) {
+        console.log(prefix + "WARNING: Delete routine called with no selected rows.  Illogical, Captain.  No action taken.");
+        console.log(prefix + "Exiting");
+        return;
+    }
+
+    arrRowsToDelete.sort(function (a, b) { return (a - b); });
+    arrRowsToDelete.reverse(); // When deleting from an array delete 'backwards' so indices do not become invalid
+
+    var sTableId = table.id;
+    var arrData = kawasu.dynatable[sTableId]["arrData"];
+
+    for (var i = 0; i < arrRowsToDelete.length; ++i) {
+
+        // Row handling
+        var row = table.rows[arrRowsToDelete[i]];
+        kawasu.dynatable.blankRow(row);
+        table.appendChild(row); // Move to end of table, data should 'shuffle up'
+
+        // Data handling
+        if (bDeleteSourceData) {
+            arrData.splice(arrRowsToDelete[i], 1);
+        }
+    }
+
+    // Reset the zebra striping as this is probably all to pot now.
+    // This also turns selected rows off.
+    kawasu.dynatable.resetRows(sTableId, table, false); 
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.blankRow = function (row) {
+    for (var i = 0; i < row.cells.length; ++i) {
+        var cell = row.cells[i];
+        cell.innerHTML = kawasu.dynatable.config.sEmptyStringHtml;
+    }
 }
