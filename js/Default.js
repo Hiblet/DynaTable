@@ -213,6 +213,9 @@ kawasu.orders.hookupHandlers = function () {
 
     var btnDeselectAll = document.getElementById("btnDeselectAll");
     fc.utils.addEvent(btnDeselectAll, "click", kawasu.orders.btnDeselectAll_onClick);
+
+    var btnDeleteSelected = document.getElementById("btnDeleteSelected");
+    fc.utils.addEvent(btnDeleteSelected, "click", kawasu.orders.btnDeleteSelected_onClick);    
 }
 
 kawasu.orders.btnToggleMultiSelect_onClick = function (){
@@ -252,6 +255,15 @@ kawasu.orders.btnDeselectAll_onClick = function () {
     console.log(prefix + "Entering");
 
     kawasu.dynatable.setSelectAll("myDynaTable", false);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.orders.btnDeleteSelected_onClick = function () {
+    var prefix = "kawasu.orders.btnDeleteSelected_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.deleteSelected("myDynaTable", true);
 
     console.log(prefix + "Exiting");
 }
