@@ -215,7 +215,10 @@ kawasu.orders.hookupHandlers = function () {
     fc.utils.addEvent(btnDeselectAll, "click", kawasu.orders.btnDeselectAll_onClick);
 
     var btnDeleteSelected = document.getElementById("btnDeleteSelected");
-    fc.utils.addEvent(btnDeleteSelected, "click", kawasu.orders.btnDeleteSelected_onClick);    
+    fc.utils.addEvent(btnDeleteSelected, "click", kawasu.orders.btnDeleteSelected_onClick);
+
+    var btnDeleteRequest = document.getElementById("btnDeleteRequest");
+    fc.utils.addEvent(btnDeleteRequest, "click", kawasu.orders.btnDeleteRequest_onClick);
 }
 
 kawasu.orders.btnToggleMultiSelect_onClick = function (){
@@ -264,6 +267,15 @@ kawasu.orders.btnDeleteSelected_onClick = function () {
     console.log(prefix + "Entering");
 
     kawasu.dynatable.deleteSelected("myDynaTable", true);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.orders.btnDeleteRequest_onClick = function () {
+    var prefix = "kawasu.orders.btnDeleteRequest_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.deleteRequest("myDynaTable", true); // true==Reset selection after this fn called
 
     console.log(prefix + "Exiting");
 }

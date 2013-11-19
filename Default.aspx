@@ -24,6 +24,7 @@
         <input type="button" id="btnSelectAll" value="Select All" />
         <input type="button" id="btnDeselectAll" value="Deselect All" />
         <input type="button" id="btnDeleteSelected" value="Delete" />
+        <input type="button" id="btnDeleteRequest" value="Delete Request" />
 
         <br />
         <br />
