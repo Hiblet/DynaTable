@@ -34,8 +34,9 @@ kawasu.dynatable.config.sDivOuterPrefix = "div_";
 kawasu.dynatable.config.sDivOuterSuffix = "_Outer";
 
 kawasu.dynatable.config.sEmptyStringHtml = "&nbsp";
-
-
+kawasu.dynatable.config.nNumericPadding = 6;
+kawasu.dynatable.config.sType_DATA = "DATA";
+kawasu.dynatable.config.sType_PADDING = "PADDING";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,6 @@ kawasu.dynatable.config.sEmptyStringHtml = "&nbsp";
 kawasu.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bMultiSelect, bExtendLastColOverScrollbar) {
     var prefix = "kawasu.dynatable.build() - ";
     console.log(prefix + "Entering");
-
 
     // Default bMultiSelect argument value is false
     bMultiSelect = (typeof bMultiSelect !== 'undefined') ? bMultiSelect : false;
@@ -183,6 +183,7 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     for (var i = 0; i < arrData.length; ++i) {
         var tr = document.createElement("tr");
         tr.className = classRow;
+        tr.id = kawasu.dynatable.getRowName(sTableId, "tr", kawasu.dynatable.config.sType_DATA, i);
 
         // arrData[i] is a JSON object in the array.
         // It may or may not have a property for this header
@@ -206,6 +207,7 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     for (var i = 0; i < nPaddingRows; ++i) {
         var tr = document.createElement("tr");
         tr.className = classRow;
+        tr.id = kawasu.dynatable.getRowName(sTableId, "tr", kawasu.dynatable.config.sType_PADDING, i);
 
         for (var prop in header) {
             if (header.hasOwnProperty(prop)) {
@@ -223,7 +225,6 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     return table;
     console.log(prefix + "Exiting");
 }
-
 
 kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol) {
     var prefix = "kawasu.dynatable.buildScrollingTable() - ";
@@ -614,6 +615,8 @@ kawasu.dynatable.getSelectedRows = function (table) {
     console.log(prefix + "Entering");
 
     // Return a reference to the selected rows.  
+    var sTableId = table.id;
+    var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
 
     var arrayRowsSelected = [];
     for (var i = 0; i < table.rows.length; ++i) {
@@ -636,8 +639,10 @@ kawasu.dynatable.getSelectedIndices = function (table) {
 
     var arrayRowsSelectedIndices = [];
     for (var i = 0; i < table.rows.length; ++i) {
-        if (table.rows[i].className == trClassSelected) {
-            arrayRowsSelectedIndices.push(i);
+        var row = table.rows[i];
+        if (row.className == trClassSelected) {
+            var index = kawasu.dynatable.getIndexFromRowName(row.id);
+            if (index >= 0) arrayRowsSelectedIndices.push(index);
         }
     }
 
@@ -691,13 +696,13 @@ kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) 
         }
     }
 
-    kawasu.dynatable.sortrowsV4(table, tableHeader,n, comparator);
+    kawasu.dynatable.sortrows(table, tableHeader,n, comparator);
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.dynatable.sortrowsV4 = function (table, tableHeader, n, comparator) {
-    var prefix = "kawasu.dynatable.sortrows() [V3] - ";
+kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
+    var prefix = "kawasu.dynatable.sortrows() - ";
     console.log(prefix + "Entering");
 
     // Note: I need to keep the data and the rows 'in step', so that indices
@@ -723,26 +728,9 @@ kawasu.dynatable.sortrowsV4 = function (table, tableHeader, n, comparator) {
     rows = Array.prototype.slice.call(rows, 0);                                 // Convert to array as a snapshot
     var rowsBlank = fc.utils.getBlankRows(rows);                                // Extract all blank rows to another storage object
 
-    var arrData = kawasu.dynatable[sTableId]["arrData"];
-
-    if (arrData.length != rows.length) {
-        // The two arrays should always be the same size
-        console.log(prefix + "ERROR: Data elements: >" + arrData.length + "< and Rows: >" + rows.length + "< - These should be equal, cannot sort together if they are not.");
-        return;
-    }
-
-    // Make combined array
-    var arrayAll = [];
-    for (var j = 0; j < arrData.length; ++j) {
-        var pair = new Object();
-        pair["data"] = arrData[j];
-        pair["row"] = rows[j];
-        arrayAll.push(pair);
-    }
-
-    arrayAll.sort(function (pair1, pair2) {
-        var cell1 = (pair1["row"]).getElementsByTagName("td")[n];                         // Get nth cell
-        var cell2 = (pair2["row"]).getElementsByTagName("td")[n];                         // of both rows
+    rows.sort(function (row1, row2) {
+        var cell1 = row1.getElementsByTagName("td")[n];                         // Get nth cell
+        var cell2 = row2.getElementsByTagName("td")[n];                         // of both rows
 
         // Handle undefined cell case
         if (typeof (cell1) == 'undefined' && typeof (cell2) == 'undefined') {
@@ -768,21 +756,16 @@ kawasu.dynatable.sortrowsV4 = function (table, tableHeader, n, comparator) {
     }); // end of arrayAll.sort(function(){});
 
     // If descending, reverse the data array
-    if (sortOrder == "DESC") arrayAll.reverse();
+    if (sortOrder == "DESC") rows.reverse();
 
     // Append rows into tbody in sorted order.
     // Note that the rows are implicitly removed, and that any nodes that are 
     // not rows <tr> will be above the sorted rows
 
     var i = 0;
-    var arrDataSorted = [];
-    for (; i < arrayAll.length; i++) {
-        table.appendChild(arrayAll[i]["row"]); // Put row back into table
-        arrDataSorted.push(arrayAll[i]["data"]); // Put data back into array
+    for (; i < rows.length; i++) {
+        table.appendChild(rows[i]); // Put row back into table
     }
-
-    // Save the sorted data as the current data
-    kawasu.dynatable[sTableId]["arrData"] = arrDataSorted;
 
     // Add the blank rows back on
     var countBlankRows = rowsBlank.length;
@@ -799,8 +782,7 @@ kawasu.dynatable.sortrowsV4 = function (table, tableHeader, n, comparator) {
 
     console.log(prefix + "Exiting");
 
-}    // end of sortrows() V4
-
+}  // end of sortrows() 
 
 
 kawasu.dynatable.multiSelect = function (sTableId,bMultiSelect) {
@@ -946,6 +928,7 @@ kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceDa
 
     if (arrRowsToDelete.length == 0) {
         console.log(prefix + "WARNING: Delete routine called with no selected rows.  Illogical, Captain.  No action taken.");
+        kawasu.dynatable.resetRows(table.id, table, false); // Turn off selected rows
         console.log(prefix + "Exiting");
         return;
     }
@@ -959,7 +942,8 @@ kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceDa
     for (var i = 0; i < arrRowsToDelete.length; ++i) {
 
         // Row handling
-        var row = table.rows[arrRowsToDelete[i]];
+        var rowId = kawasu.dynatable.getRowName(sTableId, "tr", kawasu.dynatable.config.sType_DATA, arrRowsToDelete[i]);
+        var row = document.getElementById(rowId);
         kawasu.dynatable.blankRow(row);
         table.appendChild(row); // Move to end of table, data should 'shuffle up'
 
@@ -969,9 +953,14 @@ kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceDa
         }
     }
 
-    // Reset the zebra striping as this is probably all to pot now.
-    // This also turns selected rows off.
-    kawasu.dynatable.resetRows(sTableId, table, false); 
+    // Row names may be out of sync with data, and zebra striping might be wrong.
+    // If data was deleted, rebuild, else, re-stripe.
+    if (bDeleteSourceData) {
+        kawasu.dynatable.rebuild(sTableId);
+    }
+    else {
+        kawasu.dynatable.resetRows(sTableId, table, false);
+    }
 
     console.log(prefix + "Exiting");
 }
@@ -980,5 +969,65 @@ kawasu.dynatable.blankRow = function (row) {
     for (var i = 0; i < row.cells.length; ++i) {
         var cell = row.cells[i];
         cell.innerHTML = kawasu.dynatable.config.sEmptyStringHtml;
+    }
+}
+
+kawasu.dynatable.getRowName = function (sTableId, sElement, sType, nIndex) {
+    return sTableId + "_" + sElement + "_" + sType + "_" + fc.utils.prePad(nIndex.toString(), "0", kawasu.dynatable.config.nNumericPadding);
+}
+
+kawasu.dynatable.deleteRequest = function (sTableId, bResetSelected) {
+    var prefix = "kawasu.dynatable.deleteRequest() - ";
+    console.log(prefix + "Entering");
+
+    // This fn calls back to the parent to say that the table would like
+    // to delete certain rows.  This allows the parent to manage the 
+    // source data.
+
+
+    // Default Syntax; Default to true
+    bResetSelected = (typeof bResetSelected === 'undefined') ? true : bResetSelected;
+
+    var table = document.getElementById(sTableId);
+    var selectedRows = kawasu.dynatable.getSelectedRows(table);
+
+    var selectedDataIndices = kawasu.dynatable.getSelectedDataIndices(selectedRows);
+
+    if (bResetSelected) kawasu.dynatable.resetRows(sTableId, table, false);
+
+    console.log(prefix + "Exiting");
+    return selectedDataIndices;
+}
+
+kawasu.dynatable.getSelectedDataIndices = function (rows) {
+    // Iterate array of selected rows, get the name, 
+    // if data, chew out index and add to return array
+
+    var arrayReturn = [];
+
+    for (var i = 0; i < rows.length; ++i) {
+        var index = kawasu.dynatable.getIndexFromRowName(rows[i].id);
+        if (index >= 0) arrayReturn.push(index);
+    }
+
+    return arrayReturn;
+}
+
+kawasu.dynatable.getIndexFromRowName = function (sRowName) {
+    var arraySplit = sRowName.split("_");
+
+    // [0] == sTableId
+    // [1] == sElement eg "tr"
+    // [2] == sType eg "DATA" or "PADDING"
+    // [3] == sIndex
+
+    // kawasu.dynatable.config.sType_DATA = "DATA"; kawasu.dynatable.config.sType_PADDING = "PADDING"; //
+
+    // Ignore padding rows
+    if (arraySplit[2] == kawasu.dynatable.config.sType_DATA) {
+        return parseInt(arraySplit[3], 10);
+    }
+    else {
+        return -1;
     }
 }
