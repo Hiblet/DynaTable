@@ -1050,7 +1050,7 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
 
     var trClassGreyOut = kawasu.dynatable[sTableId]["styleDefn"]["trClassGreyOut"];
     var rows = kawasu.dynatable.getRows(sTableId, sColumnName, sColumnData);
-    if (rows === 'undefined' || rows.length == 0) {
+    if (typeof rows === 'undefined' || rows.length == 0) {
         console.log(prefix + "WARNING: No rows found matching the criteria");
         return;
     }
