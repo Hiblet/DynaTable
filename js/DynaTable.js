@@ -890,12 +890,13 @@ kawasu.dynatable.setSelectAll = function (sTableId, bSelectState) {
 }
 
 
-kawasu.dynatable.getColNameByIndex = function (n, tableHeader) {
+kawasu.dynatable.getColNameByIndex = function (sTableId, n) {
     var prefix = "kawasu.dynatable.getColNameByIndex() - ";
     console.log(prefix + "Entering");
 
     // Passed index n, retrieve the column name from tableHeader
 
+    var tableHeader = kawasu.dynatable.getTableHeader(sTableId);
     var headerLength = tableHeader.rows[0].cells.length;
     if (n >= headerLength) {
         // Error, index requested is too big for this header
@@ -984,7 +985,6 @@ kawasu.dynatable.deleteRequest = function (sTableId, bResetSelected) {
     // to delete certain rows.  This allows the parent to manage the 
     // source data.
 
-
     // Default Syntax; Default to true
     bResetSelected = (typeof bResetSelected === 'undefined') ? true : bResetSelected;
 
@@ -1030,4 +1030,100 @@ kawasu.dynatable.getIndexFromRowName = function (sRowName) {
     else {
         return -1;
     }
+}
+
+kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyOut) {
+    var prefix = "kawasu.dynatable.greyRows() - ";
+    console.log(prefix + "Entering");
+
+    // Default Syntax; This defaults to true, grey out the row
+    bGreyOut = (typeof bGreyOut === 'undefined') ? true : bGreyOut;
+
+    if (!kawasu.dynatable[sTableId]["styleDefn"].hasOwnProperty("trClassGreyOut")) {
+        console.log(prefix + "WARNING: No trClassGreyOut style is set in the style definition for this table; No action taken.");
+        return;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Grey out the rows where the passed column matches the passed data string
+
+    var trClassGreyOut = kawasu.dynatable[sTableId]["styleDefn"]["trClassGreyOut"];
+    var rows = kawasu.dynatable.getRows(sTableId, sColumnName, sColumnData);
+    if (rows === 'undefined' || rows.length == 0) {
+        console.log(prefix + "WARNING: No rows found matching the criteria");
+        return;
+    }
+
+    for (var i = 0; i < rows.length; ++i) {
+        row = rows[i];
+        if (bGreyOut) {
+            row.className = row.className + " " + trClassGreyOut;
+        }
+        else {
+            kawasu.dynatable.setRowDeselected(sTableId, row, row.rowIndex);
+            // Note, rowIndex should be the index of the row in the table, not 
+            // the index of the row in the array returned from getRows().
+        }
+    }
+
+    console.log(prefix + "Exiting");
+    return rows; // caller may interrogate returned rows, saves recalling getRows() again
+}
+
+kawasu.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {
+    var prefix = "kawasu.dynatable.getRows() - ";
+    console.log(prefix + "Entering");
+
+    var table = document.getElementById(sTableId);
+    var tableHeader = kawasu.dynatable.getTableHeader(sTableId);
+
+    if (tableHeader == null) {
+        console.log(prefix + "ERROR: Could not find table header based on sTableId: >" + sTableId + "<");
+        return;
+    }
+
+    var iCol = kawasu.dynatable.getIndexByColName(sTableId, sColumnName);
+
+    if (iCol == -1) {
+        console.log(prefix + "ERROR: Could not get a column index value for a column called >" + sColumnName + "<");
+        return;
+    }
+
+    var arrayRows = [];
+
+    // Iterate rows, return an array of refs to rows that match
+    for (var i = 0; i < table.rows.length; ++i) {
+        var cell = table.rows[i].cells[iCol];
+        var cellData = fc.utils.textContent(cell);
+        if (cellData == sColumnData)
+            arrayRows.push(table.rows[i]);
+    }
+
+    return arrayRows;
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.getTableHeader = function (sTableId) {
+    var tableHeaderId = kawasu.dynatable.config.sTableHeaderPrefix + sTableId + kawasu.dynatable.config.sTableHeaderSuffix;
+    return document.getElementById(tableHeaderId);
+}
+
+kawasu.dynatable.getIndexByColName = function (sTableId, sColumnName) {
+    var prefix = "kawasu.dynatable.getIndexByColName() - ";
+    console.log(prefix + "Entering");
+
+    // We're passed a header table, we return a zero-based index for the 
+    // corresponding column, or -1 for failure.
+    var tableHeader = kawasu.dynatable.getTableHeader(sTableId);
+    var row = tableHeader.rows[0];
+    for (var i = 0; i < row.cells.length; ++i) {
+        var header = fc.utils.textContent(row.cells[i]);
+        if (header == sColumnName)
+            return i;
+    }
+
+    console.log(prefix + "Exiting");
+    return -1;
 }

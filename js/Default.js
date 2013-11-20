@@ -20,6 +20,10 @@ var kawasu = kawasu || {};
 if (fc.utils.isInvalidVar(kawasu.orders)) { kawasu.orders = new Object(); }
 
 
+// Global; Temporary, for GreyOut testing
+var bGreyOut = true;
+
+
 kawasu.orders.init = function () {
     var prefix = "kawasu.orders.init() - ";
     console.log(prefix + "Entering");
@@ -38,6 +42,10 @@ kawasu.orders.init = function () {
     // If you set odd/even row classes, you get zebra stripes
     styleDefn["trClassOdd"] = "trTestClassLargeOdd";
     styleDefn["trClassEven"] = "trTestClassLargeEven";
+
+    // If you set a grey out class, you can use the greyRows() function to grey
+    // out rows that match data values in a certain column
+    styleDefn["trClassGreyOut"] = "trTestClassLargeGreyOut";
 
     // BUILD A TEST DATA SET
     var arrData = kawasu.orders.createTestDataA();
@@ -60,6 +68,7 @@ kawasu.orders.init = function () {
     kawasu.orders.hookupHandlers();
 
     kawasu.orders.btnToggleMultiSelect_setBtnText();
+
 
     console.log(prefix + "Exiting");
 }
@@ -219,6 +228,9 @@ kawasu.orders.hookupHandlers = function () {
 
     var btnDeleteRequest = document.getElementById("btnDeleteRequest");
     fc.utils.addEvent(btnDeleteRequest, "click", kawasu.orders.btnDeleteRequest_onClick);
+
+    var btnGreyOutToggle = document.getElementById("btnGreyOutToggle");
+    fc.utils.addEvent(btnGreyOutToggle, "click", kawasu.orders.btnGreyOutToggle_onClick);
 }
 
 kawasu.orders.btnToggleMultiSelect_onClick = function (){
@@ -276,6 +288,16 @@ kawasu.orders.btnDeleteRequest_onClick = function () {
     console.log(prefix + "Entering");
 
     kawasu.dynatable.deleteRequest("myDynaTable", true); // true==Reset selection after this fn called
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.orders.btnGreyOutToggle_onClick = function () {
+    var prefix = "kawasu.orders.btnGreyOutToggle_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.greyRows("myDynaTable", "Contract", "DIGIT", bGreyOut);
+    bGreyOut = !bGreyOut;
 
     console.log(prefix + "Exiting");
 }

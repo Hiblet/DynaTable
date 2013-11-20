@@ -93,6 +93,11 @@ th
     background-color:#D3C5FA;
 }
 
+.trTestClassLargeGreyOut
+{
+    background-color:#CCCCCC;
+    /* color:#AAAAAA !important; */ /* Cannot set foreground color by row, only background color */
+}
 
 .trSelectedTestClassLarge 
 {

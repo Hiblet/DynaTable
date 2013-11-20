@@ -25,6 +25,8 @@
         <input type="button" id="btnDeselectAll" value="Deselect All" />
         <input type="button" id="btnDeleteSelected" value="Delete" />
         <input type="button" id="btnDeleteRequest" value="Delete Request" />
+        <br />
+        <input type="button" id="btnGreyOutToggle" value="Toggle GreyOut" />
 
         <br />
         <br />
