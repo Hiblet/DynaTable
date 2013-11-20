@@ -1422,7 +1422,7 @@ fc.utils.defaultComparator = function (val1, val2) {
 function SwapCSSClass(sCurrentClass, sClassToRemove, sClassToAdd) {
     // With CSS, you might want to flip between two classes.  These classes
     // might be part of a cascade string "ClassA ClassB ClassToRemove ClassD"
-    // so you would have to removed the target class and preserve the 
+    // so you would have to remove the target class and preserve the 
     // class cascade structure.
     // The object of this function is to swap in ClassToAdd in place of 
     // ClassToRemove, preserving the ordering. 
