@@ -68,6 +68,12 @@ th
     width:100%;
 }
 
+.tdTestClassLargeGreyOut 
+{
+    color:#888888;
+    width:100%;
+}
+
 .thTestClassLarge 
 {
     background-color:Navy;
@@ -75,32 +81,17 @@ th
     width:100%;
 }
 
-.trTestClassLarge
-{
-    min-height:30px;
-    background-color:White;
-}
+.trTestClassLarge,
+.trTestClassLargeOdd,
+.trTestClassLargeEven,
+.trSelectedTestClassLarge
+{ min-height:30px; }
 
-.trTestClassLargeOdd
-{
-    min-height:30px;
-    background-color:#FAC5F2;
-}
 
-.trTestClassLargeEven
-{
-    min-height:30px;
-    background-color:#D3C5FA;
-}
+.trTestClassLarge { background-color:White;}
 
-.trTestClassLargeGreyOut
-{
-    background-color:#CCCCCC;
-    /* color:#AAAAAA !important; */ /* Cannot set foreground color by row, only background color */
-}
+.trTestClassLargeOdd { background-color:#FAC5F2; }
 
-.trSelectedTestClassLarge 
-{
-    min-height:30px;
-    background-color:#FCFB8B;
-}
+.trTestClassLargeEven { background-color:#D3C5FA; }
+
+.trSelectedTestClassLarge { background-color:#FCFB8B; }
