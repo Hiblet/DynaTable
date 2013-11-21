@@ -1039,8 +1039,8 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
     // Default Syntax; This defaults to true, grey out the row
     bGreyOut = (typeof bGreyOut === 'undefined') ? true : bGreyOut;
 
-    if (!kawasu.dynatable[sTableId]["styleDefn"].hasOwnProperty("trClassGreyOut")) {
-        console.log(prefix + "WARNING: No trClassGreyOut style is set in the style definition for this table; No action taken.");
+    if (!kawasu.dynatable[sTableId]["styleDefn"].hasOwnProperty("tdClassGreyOut")) {
+        console.log(prefix + "WARNING: No tdClassGreyOut style is set in the style definition for this table; No action taken.");
         return;
     }
 
@@ -1048,7 +1048,9 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
     ///////////////////////////////////////////////////////////////////////////
     // Grey out the rows where the passed column matches the passed data string
 
-    var trClassGreyOut = kawasu.dynatable[sTableId]["styleDefn"]["trClassGreyOut"];
+    var tdClassGreyOut = kawasu.dynatable[sTableId]["styleDefn"]["tdClassGreyOut"];
+    var tdClass = kawasu.dynatable[sTableId]["styleDefn"]["tdClass"];
+
     var rows = kawasu.dynatable.getRows(sTableId, sColumnName, sColumnData);
     if (typeof rows === 'undefined' || rows.length == 0) {
         console.log(prefix + "WARNING: No rows found matching the criteria");
@@ -1058,17 +1060,21 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
     for (var i = 0; i < rows.length; ++i) {
         row = rows[i];
         if (bGreyOut) {
-            row.className = row.className + " " + trClassGreyOut;
+            kawasu.dynatable.setCellClass(row,tdClassGreyOut); // Set Grey
         }
         else {
-            kawasu.dynatable.setRowDeselected(sTableId, row, row.rowIndex);
-            // Note, rowIndex should be the index of the row in the table, not 
-            // the index of the row in the array returned from getRows().
+            kawasu.dynatable.setCellClass(row,tdClass); // Set Normal
         }
     }
 
     console.log(prefix + "Exiting");
     return rows; // caller may interrogate returned rows, saves recalling getRows() again
+}
+
+kawasu.dynatable.setCellClass = function (row, sClass) {
+    for (var i = 0; i < row.cells.length; ++i) {
+        row.cells[i].className = sClass;
+    }
 }
 
 kawasu.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {

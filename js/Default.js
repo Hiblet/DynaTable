@@ -45,7 +45,7 @@ kawasu.orders.init = function () {
 
     // If you set a grey out class, you can use the greyRows() function to grey
     // out rows that match data values in a certain column
-    styleDefn["trClassGreyOut"] = "trTestClassLargeGreyOut";
+    styleDefn["tdClassGreyOut"] = "tdTestClassLargeGreyOut"; // Cell style grey out - text
 
     // BUILD A TEST DATA SET
     var arrData = kawasu.orders.createTestDataA();
