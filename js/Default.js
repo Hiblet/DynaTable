@@ -231,6 +231,9 @@ kawasu.orders.hookupHandlers = function () {
 
     var btnGreyOutToggle = document.getElementById("btnGreyOutToggle");
     fc.utils.addEvent(btnGreyOutToggle, "click", kawasu.orders.btnGreyOutToggle_onClick);
+
+    var btnApplySort = document.getElementById("btnApplySort");
+    fc.utils.addEvent(btnApplySort, "click", kawasu.orders.btnApplySort_onClick);
 }
 
 kawasu.orders.btnToggleMultiSelect_onClick = function (){
@@ -298,6 +301,15 @@ kawasu.orders.btnGreyOutToggle_onClick = function () {
 
     kawasu.dynatable.greyRows("myDynaTable", "Contract", "DIGIT", bGreyOut);
     bGreyOut = !bGreyOut;
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.orders.btnApplySort_onClick = function () {
+    var prefix = "kawasu.orders.btnApplySort_onClick() - ";
+    console.log(prefix + "Entering");
+
+    kawasu.dynatable.applySortByColumnIndex("myDynaTable", 2, "DESC");
 
     console.log(prefix + "Exiting");
 }

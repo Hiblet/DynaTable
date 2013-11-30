@@ -27,6 +27,7 @@
         <input type="button" id="btnDeleteRequest" value="Delete Request" />
         <br />
         <input type="button" id="btnGreyOutToggle" value="Toggle GreyOut" />
+        <input type="button" id="btnApplySort" value="Apply Sort" />
 
         <br />
         <br />
