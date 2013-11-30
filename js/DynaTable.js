@@ -566,7 +566,7 @@ kawasu.dynatable.dataCell_onClick = function () {
     console.log(prefix + "Exiting");
 }
 
-
+/*
 kawasu.dynatable.dataCell_onClick1 = function () {
     var prefix = "kawasu.dynatable.dataCell_onClick1() - ";
     console.log(prefix + "Entering");
@@ -609,6 +609,7 @@ kawasu.dynatable.dataCell_onClick1 = function () {
 
     console.log(prefix + "Exiting");
 }
+*/
 
 kawasu.dynatable.getSelectedRows = function (table) {
     var prefix = "kawasu.dynatable.getSelectedRows() - ";
@@ -705,12 +706,6 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
     var prefix = "kawasu.dynatable.sortrows() - ";
     console.log(prefix + "Entering");
 
-    // Note: I need to keep the data and the rows 'in step', so that indices
-    // are the same.  That is a pre-requisite of deletion of selected items,
-    // I find the selecte row's indices and translate that to the data.
-    // To do that, temporarily unite the data to the row and sort together,
-    // then re-split.
-
     var bColIsNumeric = fc.utils.isColumnNumeric(table, n);
     var sTableId = table.id;
 
@@ -782,8 +777,82 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
 
     console.log(prefix + "Exiting");
 
-}  // end of sortrows() 
+}  // end of sortrows()
 
+kawasu.dynatable.applySort = function (sTableId, n, sOrder) {
+    var prefix = "kawasu.dynatable.applySort() - ";
+    console.log(prefix + "Entering");
+
+    if (!(sOrder == "ASC" || sOrder == "DESC")) {
+        console.log(prefix + "WARNING: 3rd parameter [sOrder] must be either ASC or DESC; passed >" + sOrder + "<");
+        return;
+    }
+
+    var table = document.getElementById(sTableId);
+
+    if (!fc.utils.isValidVar(table)) {
+        console.log(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        return;
+    }
+
+    var tableHeader = kawasu.dynatable.getTableHeader(sTableId);
+
+    // Set the cookie to the required sort order
+    var sortColCName = table.id + "_SortCol";
+    var sortOrderCName = table.id + "_SortOrder";
+    fc.utils.setCookie(sortColCName, n.toString(10), 3);
+    fc.utils.setCookie(sortOrderCName, sOrder, 3);
+
+    kawasu.dynatable.sortrows(table, tableHeader, n);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.applySortByColumnIndex = function (sTableId, n, sOrder) {
+    var prefix = "kawasu.dynatable.applySortByColumnIndex() - ";
+    console.log(prefix + "Entering");
+
+    if (n < 0) {
+        console.log(prefix + "ERROR: Column index is negative.");
+        return;
+    }
+
+    var table = document.getElementById(sTableId);
+
+    if (!fc.utils.isValidVar(table)) {
+        console.log(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        return;
+    }
+
+    var nCols = table.rows[0].cells.length;
+    if (n >= nCols) {
+        console.log(prefix + "ERROR: Column index is greater than the number of columns in the table (" + nCols + ")");
+        return;
+    }
+
+    kawasu.dynatable.applySort(sTableId, n, sOrder);
+
+    console.log(prefix + "Exiting");
+}
+
+kawasu.dynatable.applySortByColumnName = function (sTableId, sColName, sOrder) {
+    var prefix = "kawasu.dynatable.applySortByColumnName() - ";
+    console.log(prefix + "Entering");
+
+    // Function to programmatically apply sort order to a table, rather than
+    // the user clicking on a column header.
+
+    var n = kawasu.dynatable.getIndexByColName(sTableId, sColName);
+
+    if (n == -1) {
+        console.log(prefix + "WARNING: Could not find column in table >" + sTableId + "< with column name >" + sColName + "<.  Cannot sort table as requested.");
+        return;
+    }
+
+    kawasu.dynatable.applySort(sTableId, n, sOrder);
+
+    console.log(prefix + "Exiting");
+}
 
 kawasu.dynatable.multiSelect = function (sTableId,bMultiSelect) {
     var prefix = "kawasu.dynatable.multiSelect() - ";
