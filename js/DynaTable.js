@@ -635,6 +635,8 @@ kawasu.dynatable.getSelectedIndices = function (table) {
     console.log(prefix + "Entering");
 
     // Return array of indices for the selected rows.  
+    // Note that these are indices in the arrData data array, not the table.
+
     var sTableId = table.id;
     var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
 
