@@ -630,17 +630,23 @@ kawasu.dynatable.getSelectedRows = function (table) {
     return arrayRowsSelected;
 }
 
-kawasu.dynatable.getSelectedIndices = function (table) {
+kawasu.dynatable.getSelectedIndices = function (sTableId) {
     var prefix = "kawasu.dynatable.getSelectedIndices() - ";
     console.log(prefix + "Entering");
 
     // Return array of indices for the selected rows.  
     // Note that these are indices in the arrData data array, not the table.
 
-    var sTableId = table.id;
+    var arrayRowsSelectedIndices = [];
+
+    var table = document.getElementById(sTableId);
+    if (fc.utils.isInvalidVar(table)) {
+        console.log(prefix + "ERROR: Could not get table element by id using passed id: >" + sTableId + "<");
+        return arrayRowsSelectedIndices;
+    }
+
     var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
 
-    var arrayRowsSelectedIndices = [];
     for (var i = 0; i < table.rows.length; ++i) {
         var row = table.rows[i];
         if (row.className == trClassSelected) {
@@ -987,7 +993,7 @@ kawasu.dynatable.deleteSelected = function (sTableId, bDeleteSourceData) {
     console.log(prefix + "Entering");
 
     var table = document.getElementById(sTableId);
-    var array = kawasu.dynatable.getSelectedIndices(table);
+    var array = kawasu.dynatable.getSelectedIndices(sTableId);
 
     kawasu.dynatable.itemsDelete(table, array, bDeleteSourceData);
 
