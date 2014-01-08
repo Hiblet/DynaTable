@@ -193,7 +193,8 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
                 // If the json data object has a property for this header,
                 // enter it's info and if not, enter an empty string.
                 var td = document.createElement("td");
-                var tdContent = arrData[i][prop] || sEmptyString;
+                //var tdContent = arrData[i][prop] || sEmptyString;
+                var tdContent = kawasu.dynatable.getTdElementContent(arrData[i][prop]);
                 td.innerHTML = tdContent;
                 td.className = classDataCell;
                 tr.appendChild(td);
@@ -566,50 +567,6 @@ kawasu.dynatable.dataCell_onClick = function () {
     console.log(prefix + "Exiting");
 }
 
-/*
-kawasu.dynatable.dataCell_onClick1 = function () {
-    var prefix = "kawasu.dynatable.dataCell_onClick1() - ";
-    console.log(prefix + "Entering");
-
-    // A data cell in the table has been clicked on.
-    // This should deselect the current row and set this
-    // row to selected class. Keyword=Selectable
-
-    var row = this.parentNode;
-
-    if (fc.utils.isInvalidVar(row)) {
-        console.log(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
-        return;
-    }
-
-    var table = row.parentNode;
-    var sTableId = table.id;
-
-    var trClassSelected = kawasu.dynatable[sTableId]["styleDefn"]["trClassSelected"];
-    var trClass = kawasu.dynatable[sTableId]["styleDefn"]["trClass"];
-
-    if (row.className == trClassSelected) {
-        // This row is already selected, 
-        // so toggle it to deselected
-        kawasu.dynatable.setRowDeselected(sTableId, row, row.rowIndex);
-    }
-    else {
-        // This row is not selected, 
-        // so deselect the current selected row (if one exists) and select this one
-        var bFound = false;
-        for (var i = 0; (i < table.rows.length) && (bFound == false); ++i) {
-            if (table.rows[i].className == trClassSelected) {
-                // Found the selected row
-                bFound = true; // early exit from loop
-                kawasu.dynatable.setRowDeselected(sTableId, rows[i], i);
-            }
-        }
-        row.className = trClassSelected;
-    }
-
-    console.log(prefix + "Exiting");
-}
-*/
 
 kawasu.dynatable.getSelectedRows = function (table) {
     var prefix = "kawasu.dynatable.getSelectedRows() - ";
@@ -1209,4 +1166,24 @@ kawasu.dynatable.getIndexByColName = function (sTableId, sColumnName) {
 
     console.log(prefix + "Exiting");
     return -1;
+}
+
+kawasu.dynatable.getTdElementContent = function (arg) {
+    // Take a variable and return a sensible string to show in the table
+
+    if (typeof arg === 'undefined' || arg == null) {
+        return kawasu.dynatable.config.sEmptyStringHtml;
+    }
+
+    if (typeof arg == 'string' || arg instanceof String) {
+        if (arg == "" || arg == " ") {
+            return kawasu.dynatable.config.sEmptyStringHtml; // Empty string, replace with nbsp
+        }
+        else {
+            return arg; // Not empty, not a string, send it back unchanged
+        }
+    }
+
+    // Not a string, not undefined and not null, try to convert to string and return...
+    return arg.toString();
 }

@@ -109,7 +109,7 @@ kawasu.orders.createTestDataA = function () {
     var obj1 = {
         "Contract": "WIDGET",
         "Side": "BUY",
-        "Qty": "3",
+        "Qty": "0",
         "Price": "98.3"
     };
 
@@ -163,7 +163,7 @@ kawasu.orders.createTestDataB = function () {
     var obj3 = {
         "Contract": "BILCO",
         "Side": "SELL",
-        "Qty": "1987",
+        "Qty": 0, // Numeric zero, evaluates to false
         "Price": "9.99",
         "StopPrice": "232"
     };
