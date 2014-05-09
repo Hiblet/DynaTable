@@ -33,6 +33,9 @@ kawasu.dynatable.config.sDivBodySuffix = "_Body";
 kawasu.dynatable.config.sDivOuterPrefix = "div_";
 kawasu.dynatable.config.sDivOuterSuffix = "_Outer";
 
+kawasu.dynatable.config.sDivShellPrefix = "div_";
+kawasu.dynatable.config.sDivShellSuffix = "_Shell";
+
 kawasu.dynatable.config.sEmptyStringHtml = "&nbsp";
 kawasu.dynatable.config.nNumericPadding = 6;
 kawasu.dynatable.config.sType_DATA = "DATA";
@@ -295,18 +298,24 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     kawasu.dynatable.makeHeaderSortable(table, tableHeader);
 
     // Zebra stripe if styles are set
-    kawasu.dynatable.resetRows(sTableId,table,true);
+    kawasu.dynatable.resetRows(sTableId, table, true);
+
+    // Create a wrapper div to hold the whole table
+    var divShell = document.createElement("div");
+    divShell.id = kawasu.dynatable.config.sDivShellPrefix + sTableId + kawasu.dynatable.config.sDivShellSuffix;
+    divShell.style.overflowX = "auto";
+    divShell.style.overflowY = "hidden";
+    divShell.style.width = "100%";
 
     // Create a div to hold the header and the body.
     // The header and body are in a div that is fixed height, but unlimited width
     var divOuter = document.createElement("div");
     divOuter.id = kawasu.dynatable.config.sDivOuterPrefix + sTableId + kawasu.dynatable.config.sDivOuterSuffix;
-    divOuter.style.overflowX = "scroll";
+    divOuter.style.overflowX = "hidden";
     divOuter.style.overflowY = "hidden";
-    divOuter.style.height = (sizeTableHeader.height + sizeTableBody.height + sbHeight).toString() + "px";
+    divOuter.style.height = (sizeTableHeader.height + sizeTableBody.height).toString() + "px";
 
-    // Don't set the width on the outer div - The width comes from the containing parent div
-    //divOuter.style.width = (maxTableWidth + sbWidth +1).toString() + "px";
+    divOuter.style.width = (maxTableWidth + sbWidth + 1).toString() + "px";
 
     // Create a div to hold the header
     var divHeader = document.createElement("div");
@@ -332,7 +341,9 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     divOuter.appendChild(divHeader);
     divOuter.appendChild(divBody);
 
-    return divOuter;
+    divShell.appendChild(divOuter);
+
+    return divShell;
 
     console.log(prefix + "Exiting");
 }
@@ -360,22 +371,22 @@ kawasu.dynatable.rebuild = function (sTableId, arrDataNew) {
         kawasu.dynatable[sTableId]["nRowsToShow"]);
 
 
-    var divOuter_rebuild = kawasu.dynatable.buildScrollingTable(
+    var divShell_rebuild = kawasu.dynatable.buildScrollingTable(
         rawTable_rebuild,
         kawasu.dynatable[sTableId]["nRowsToShow"],
         kawasu.dynatable[sTableId]["bExtendLastColOverScrollbar"]);
 
     // We have a new divOuter.
     // Get the old divOuter's parent, drop it's child called divOuter, attach this one.
-    var divOuterId = kawasu.dynatable.config.sDivOuterPrefix + sTableId + kawasu.dynatable.config.sDivOuterSuffix;
-    var divOuter = document.getElementById(divOuterId);
-    var divOuterParent = divOuter.parentNode;
-    divOuterParent.removeChild(divOuter);
-    divOuterParent.appendChild(divOuter_rebuild);
+    var divShellId = kawasu.dynatable.config.sDivShellPrefix + sTableId + kawasu.dynatable.config.sDivShellSuffix;
+    var divShell = document.getElementById(divShellId);
+    var divShellParent = divShell.parentNode;
+    divShellParent.removeChild(divShell);
+    divShellParent.appendChild(divShell_rebuild);
 
     console.log(prefix + "Exiting");
 
-    return divOuter_rebuild;
+    return divShell_rebuild;
 }
 
 
