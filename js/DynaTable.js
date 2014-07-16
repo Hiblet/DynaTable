@@ -18,12 +18,15 @@ var kawasu = kawasu || {};
 
 if (fc.utils.isInvalidVar(kawasu.dynatable)) { kawasu.dynatable = new Object(); }
 
+kawasu.dynatable.config = new Object(); 
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set some class variables up
 //
-kawasu.dynatable.config = new Object();
+
+kawasu.dynatable.config.bLog = false;
 kawasu.dynatable.config.sTableHeaderPrefix = "table_";
 kawasu.dynatable.config.sTableHeaderSuffix = "_Header";
 kawasu.dynatable.config.sDivHeaderPrefix = "div_";
@@ -48,7 +51,7 @@ kawasu.dynatable.config.sType_PADDING = "PADDING";
 
 kawasu.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bMultiSelect, bExtendLastColOverScrollbar) {
     var prefix = "kawasu.dynatable.build() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Default bMultiSelect argument value is false
     bMultiSelect = (typeof bMultiSelect !== 'undefined') ? bMultiSelect : false;
@@ -57,7 +60,7 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bM
     bExtendLastColOverScrollbar = (typeof bExtendLastColOverScrollbar !== 'undefined') ? bExtendLastColOverScrollbar : false;
 
     if (arrData.length == 0) {
-        console.log(prefix + "ERROR: No data passed to table creation routine build(), inbound array was zero length.");
+        console.error(prefix + "ERROR: No data passed to table creation routine build(), inbound array was zero length.");
         return;
     }
 
@@ -94,18 +97,18 @@ kawasu.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bM
 
     // Check that rawtable is defined before attempting next step
     if (fc.utils.isValidVar(rawTable)) {
-        console.log(prefix + "CHECK: rawTable has been created, calling buildScrollingTable()...");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "CHECK: rawTable has been created, calling buildScrollingTable()...");
         return kawasu.dynatable.buildScrollingTable(rawTable, nRowsToShow, bExtendLastColOverScrollbar);
     }
     // implicit else
-    console.log(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
-    console.log(prefix + "Exiting");
+    console.error(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 
 kawasu.dynatable.buildHeaderData = function (arrayJsonObjects) {
     var prefix = "kawasu.dynatable.buildHeaderData() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Take an array of Json objects, and build an object that
     // has properties that are all the unique headers.
@@ -129,12 +132,12 @@ kawasu.dynatable.buildHeaderData = function (arrayJsonObjects) {
 
     return header;
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn, nRowsMinimum) {
     var prefix = "kawasu.dynatable.buildRawTable() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // This fn takes an array of JSON objects and creates an HTML table from them, 
     // applying the styles listed in the styleDefn object.
@@ -143,7 +146,7 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     // The raw table is padded with blank rows to the nRowsMinimum value.
 
     if (arguments.length != 5) {
-        console.log(prefix + "ERROR: Expected 5 args for this function, received:" + arguments.length.toString());
+        console.error(prefix + "ERROR: Expected 5 args for this function, received:" + arguments.length.toString());
         return;
     }
 
@@ -227,12 +230,12 @@ kawasu.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn,
     }
 
     return table;
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol) {
     var prefix = "kawasu.dynatable.buildScrollingTable() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // This function takes a table, and tries to show "nRowsToShow" of it.
     // The table is split so that the body and header are distinct.  
@@ -243,7 +246,7 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     // Note that the table should already have the minimum number of rows
     // required.  Shortcut out if that is not the case...
     if (table.rows.length <= nRowsToShow) {
-        console.log(prefix + "ERROR: Table passed in did not have enough rows to display correctly.");
+        console.error(prefix + "ERROR: Table passed in did not have enough rows to display correctly.");
         return;
     }
 
@@ -345,12 +348,12 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
 
     return divShell;
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.rebuild = function (sTableId, arrDataNew) {
     var prefix = "kawasu.dynatable.rebuild() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // If a new data array is supplied, use that. 
     // If not, the array may have been changed externally, so use the existing
@@ -384,7 +387,7 @@ kawasu.dynatable.rebuild = function (sTableId, arrDataNew) {
     divShellParent.removeChild(divShell);
     divShellParent.appendChild(divShell_rebuild);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 
     return divShell_rebuild;
 }
@@ -392,7 +395,7 @@ kawasu.dynatable.rebuild = function (sTableId, arrDataNew) {
 
 kawasu.dynatable.getTableSize = function (table, nRowsToShow) {
     var prefix = "kawasu.dynatable.getTableSize() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     if (nRowsToShow == 0 || nRowsToShow === 'undefined') {
         return kawasu.dynatable.getTableSize_Sub(table);
@@ -410,12 +413,12 @@ kawasu.dynatable.getTableSize = function (table, nRowsToShow) {
 
     return kawasu.dynatable.getTableSize_Sub(tableClone);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.getTableSize_Sub = function (table) {
     var prefix = "kawasu.dynatable.getTableSize_Sub() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var size = new Object();
     size.height = 0;
@@ -438,7 +441,7 @@ kawasu.dynatable.getTableSize_Sub = function (table) {
     divSizing.removeChild(table);
     document.body.removeChild(divSizing);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 
     return size;
 }
@@ -446,19 +449,19 @@ kawasu.dynatable.getTableSize_Sub = function (table) {
 
 kawasu.dynatable.makeHeaderOnly = function (table) {
     var prefix = "kawasu.dynatable.makeHeaderOnly() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     for (var k = table.rows.length; k > 1; --k) {
         // When k gets to 1, we should have only row zero left
         table.deleteRow(k - 1);
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.setTableColumnWidths = function (table, arrayColumnWidths) {
     var prefix = "kawasu.dynatable.setTableColumnWidths() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Iterate the table and set width settings for each cell
     for (var i = 0; i < table.rows.length; ++i) {
@@ -468,13 +471,13 @@ kawasu.dynatable.setTableColumnWidths = function (table, arrayColumnWidths) {
         }
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 
 kawasu.dynatable.getTableColumnWidths = function (table) {
     var prefix = "kawasu.dynatable.getTableColumnWidths() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Make an invisible div for sizing the table
     var divSizing = document.createElement('div');
@@ -517,12 +520,12 @@ kawasu.dynatable.getTableColumnWidths = function (table) {
 
     return arrayColumnWidths;
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.extendLastColumnOverScrollbar = function (tableHeader, sbWidth) {
     var prefix = "kawasu.dynatable.extendLastColumnOverScrollbar() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var index = tableHeader.rows[0].cells.length - 1;
     var cellLastHeader = tableHeader.rows[0].cells[index];
@@ -532,12 +535,12 @@ kawasu.dynatable.extendLastColumnOverScrollbar = function (tableHeader, sbWidth)
     sWidth = nWidth.toString() + "px";
     cellLastHeader.style.width = sWidth;
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.dataCell_onClick = function () {
     var prefix = "kawasu.dynatable.dataCell_onClick() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // A data cell in the table has been clicked on.
     // If this row is already selected, we deselect.
@@ -549,7 +552,7 @@ kawasu.dynatable.dataCell_onClick = function () {
     var row = this.parentNode;
 
     if (fc.utils.isInvalidVar(row)) {
-        console.log(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
+        console.error(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
         return;
     }
 
@@ -575,13 +578,13 @@ kawasu.dynatable.dataCell_onClick = function () {
         row.className = trClassSelected;
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 
 kawasu.dynatable.getSelectedRows = function (table) {
     var prefix = "kawasu.dynatable.getSelectedRows() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Return a reference to the selected rows.  
     var sTableId = table.id;
@@ -594,13 +597,13 @@ kawasu.dynatable.getSelectedRows = function (table) {
         }
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return arrayRowsSelected;
 }
 
 kawasu.dynatable.getSelectedIndices = function (sTableId) {
     var prefix = "kawasu.dynatable.getSelectedIndices() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Return array of indices for the selected rows.  
     // Note that these are indices in the arrData data array, not the table.
@@ -609,7 +612,7 @@ kawasu.dynatable.getSelectedIndices = function (sTableId) {
 
     var table = document.getElementById(sTableId);
     if (fc.utils.isInvalidVar(table)) {
-        console.log(prefix + "ERROR: Could not get table element by id using passed id: >" + sTableId + "<");
+        console.error(prefix + "ERROR: Could not get table element by id using passed id: >" + sTableId + "<");
         return arrayRowsSelectedIndices;
     }
 
@@ -623,14 +626,14 @@ kawasu.dynatable.getSelectedIndices = function (sTableId) {
         }
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return arrayRowsSelectedIndices;
 }
 
 
 kawasu.dynatable.makeHeaderSortable = function (table,tableHeader) {
     var prefix = "kawasu.dynatable.makeHeaderSortable() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Header table should have one row, rows[0].
     // Attach a function to header cell onclick event to trigger sorting.
@@ -643,12 +646,12 @@ kawasu.dynatable.makeHeaderSortable = function (table,tableHeader) {
         } (i));
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) {
     var prefix = "kawasu.dynatable.sortrowsFlipOrder() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Wrapper function that checks the column being ordered, and if it is the
     // same as the last column used for ordering, reverses the sort order
@@ -675,12 +678,12 @@ kawasu.dynatable.sortrowsFlipOrder = function (table,tableHeader,n, comparator) 
 
     kawasu.dynatable.sortrows(table, tableHeader,n, comparator);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
     var prefix = "kawasu.dynatable.sortrows() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var bColIsNumeric = fc.utils.isColumnNumeric(table, n);
     var sTableId = table.id;
@@ -751,23 +754,23 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
     fc.utils.setCookie(sortColCName, n.toString(10), 3);
     fc.utils.setCookie(sortOrderCName, sortOrder, 3);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 
 }  // end of sortrows()
 
 kawasu.dynatable.applySort = function (sTableId, n, sOrder) {
     var prefix = "kawasu.dynatable.applySort() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     if (!(sOrder == "ASC" || sOrder == "DESC")) {
-        console.log(prefix + "WARNING: 3rd parameter [sOrder] must be either ASC or DESC; passed >" + sOrder + "<");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: 3rd parameter [sOrder] must be either ASC or DESC; passed >" + sOrder + "<");
         return;
     }
 
     var table = document.getElementById(sTableId);
 
     if (!fc.utils.isValidVar(table)) {
-        console.log(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        console.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
         return;
     }
 
@@ -781,39 +784,39 @@ kawasu.dynatable.applySort = function (sTableId, n, sOrder) {
 
     kawasu.dynatable.sortrows(table, tableHeader, n);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.applySortByColumnIndex = function (sTableId, n, sOrder) {
     var prefix = "kawasu.dynatable.applySortByColumnIndex() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     if (n < 0) {
-        console.log(prefix + "ERROR: Column index is negative.");
+        console.error(prefix + "ERROR: Column index is negative.");
         return;
     }
 
     var table = document.getElementById(sTableId);
 
     if (!fc.utils.isValidVar(table)) {
-        console.log(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        console.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
         return;
     }
 
     var nCols = table.rows[0].cells.length;
     if (n >= nCols) {
-        console.log(prefix + "ERROR: Column index is greater than the number of columns in the table (" + nCols + ")");
+        console.error(prefix + "ERROR: Column index is greater than the number of columns in the table (" + nCols + ")");
         return;
     }
 
     kawasu.dynatable.applySort(sTableId, n, sOrder);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.applySortByColumnName = function (sTableId, sColName, sOrder) {
     var prefix = "kawasu.dynatable.applySortByColumnName() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Function to programmatically apply sort order to a table, rather than
     // the user clicking on a column header.
@@ -821,34 +824,34 @@ kawasu.dynatable.applySortByColumnName = function (sTableId, sColName, sOrder) {
     var n = kawasu.dynatable.getIndexByColName(sTableId, sColName);
 
     if (n == -1) {
-        console.log(prefix + "WARNING: Could not find column in table >" + sTableId + "< with column name >" + sColName + "<.  Cannot sort table as requested.");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: Could not find column in table >" + sTableId + "< with column name >" + sColName + "<.  Cannot sort table as requested.");
         return;
     }
 
     kawasu.dynatable.applySort(sTableId, n, sOrder);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.multiSelect = function (sTableId,bMultiSelect) {
     var prefix = "kawasu.dynatable.multiSelect() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Get/Set for multiselect state - true means yes, this table allows multiselection
 
     if (typeof bMultiSelect !== 'undefined') {
         // Set
-        console.log(prefix + "INFO: Setting bMultiSelect to " + (bMultiSelect ? "true" : "false"));
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "INFO: Setting bMultiSelect to " + (bMultiSelect ? "true" : "false"));
         kawasu.dynatable[sTableId]["bMultiSelect"] = bMultiSelect;
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return kawasu.dynatable[sTableId]["bMultiSelect"];
 }
 
 kawasu.dynatable.setRowDeselected = function (sTableId, row, i) {
     var prefix = "kawasu.dynatable.setRowDeselected() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var bZebraStripe = kawasu.dynatable[sTableId]["bZebraStripe"];
     var trClass = kawasu.dynatable[sTableId]["styleDefn"]["trClass"];
@@ -869,12 +872,12 @@ kawasu.dynatable.setRowDeselected = function (sTableId, row, i) {
         row.className = trClass;
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.resetRows = function (sTableId, table, bPreserveSelectedState) {
     var prefix = "kawasu.dynatable.resetRows() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Default syntax; Default to blanking the selected state
     bPreserveSelectedState = (typeof bPreserveSelectedState !== 'undefined') ? bPreserveSelectedState : false;
@@ -897,17 +900,17 @@ kawasu.dynatable.resetRows = function (sTableId, table, bPreserveSelectedState) 
         }
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 
 kawasu.dynatable.setSelectAll = function (sTableId, bSelectState) {
     var prefix = "kawasu.dynatable.setSelectAll() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     if (typeof bSelectState === 'undefined') {
-        console.log(prefix + "ERROR: No parameter passed to this function.  No default can be assumed.  No action taken.");
-        console.log(prefix + "Exiting");
+        console.error(prefix + "ERROR: No parameter passed to this function.  No default can be assumed.  No action taken.");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
         return;
     }
 
@@ -924,20 +927,20 @@ kawasu.dynatable.setSelectAll = function (sTableId, bSelectState) {
             }
         }
         else {
-            console.log(prefix + "WARNING: bMultiSelect is false,  mode is SingleSelect, cannot select all.  No action taken.");
+            if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: bMultiSelect is false,  mode is SingleSelect, cannot select all.  No action taken.");
         }
     }
     else {
         // Deselect all
         kawasu.dynatable.resetRows(sTableId, table);
     }
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 
 kawasu.dynatable.getColNameByIndex = function (sTableId, n) {
     var prefix = "kawasu.dynatable.getColNameByIndex() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Passed index n, retrieve the column name from tableHeader
 
@@ -945,37 +948,37 @@ kawasu.dynatable.getColNameByIndex = function (sTableId, n) {
     var headerLength = tableHeader.rows[0].cells.length;
     if (n >= headerLength) {
         // Error, index requested is too big for this header
-        console.log(prefix + "ERROR: Index >" + n + "< requested from Header with length of >" + headerLength + "<; Cannot retrieve column name.");
+        console.error(prefix + "ERROR: Index >" + n + "< requested from Header with length of >" + headerLength + "<; Cannot retrieve column name.");
         return "";
     }
 
     var sHeaderText = fc.utils.textContent(tableHeader.rows[0].cells[n])
 
-    console.log(prefix + "Exiting; returning >" + sHeaderText + "<");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting; returning >" + sHeaderText + "<");
     return sHeaderText;
 }
 
 
 kawasu.dynatable.deleteSelected = function (sTableId, bDeleteSourceData) {
     var prefix = "kawasu.dynatable.deleteSelected() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var table = document.getElementById(sTableId);
     var array = kawasu.dynatable.getSelectedIndices(sTableId);
 
     kawasu.dynatable.itemsDelete(table, array, bDeleteSourceData);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceData) {
     var prefix = "kawasu.dynatable.itemsDelete() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     if (arrRowsToDelete.length == 0) {
-        console.log(prefix + "WARNING: Delete routine called with no selected rows.  Illogical, Captain.  No action taken.");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: Delete routine called with no selected rows.  Illogical, Captain.  No action taken.");
         kawasu.dynatable.resetRows(table.id, table, false); // Turn off selected rows
-        console.log(prefix + "Exiting");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
         return;
     }
 
@@ -1008,7 +1011,7 @@ kawasu.dynatable.itemsDelete = function (table, arrRowsToDelete, bDeleteSourceDa
         kawasu.dynatable.resetRows(sTableId, table, false);
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.blankRow = function (row) {
@@ -1024,7 +1027,7 @@ kawasu.dynatable.getRowName = function (sTableId, sElement, sType, nIndex) {
 
 kawasu.dynatable.deleteRequest = function (sTableId, bResetSelected) {
     var prefix = "kawasu.dynatable.deleteRequest() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // This fn calls back to the parent to say that the table would like
     // to delete certain rows.  This allows the parent to manage the 
@@ -1040,7 +1043,7 @@ kawasu.dynatable.deleteRequest = function (sTableId, bResetSelected) {
 
     if (bResetSelected) kawasu.dynatable.resetRows(sTableId, table, false);
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return selectedDataIndices;
 }
 
@@ -1079,13 +1082,13 @@ kawasu.dynatable.getIndexFromRowName = function (sRowName) {
 
 kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyOut) {
     var prefix = "kawasu.dynatable.greyRows() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Default Syntax; This defaults to true, grey out the row
     bGreyOut = (typeof bGreyOut === 'undefined') ? true : bGreyOut;
 
     if (!kawasu.dynatable[sTableId]["styleDefn"].hasOwnProperty("tdClassGreyOut")) {
-        console.log(prefix + "WARNING: No tdClassGreyOut style is set in the style definition for this table; No action taken.");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: No tdClassGreyOut style is set in the style definition for this table; No action taken.");
         return;
     }
 
@@ -1098,7 +1101,7 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
 
     var rows = kawasu.dynatable.getRows(sTableId, sColumnName, sColumnData);
     if (typeof rows === 'undefined' || rows.length == 0) {
-        console.log(prefix + "WARNING: No rows found matching the criteria");
+        if (kawasu.dynatable.config.bLog) console.log(prefix + "WARNING: No rows found matching the criteria");
         return;
     }
 
@@ -1112,7 +1115,7 @@ kawasu.dynatable.greyRows = function (sTableId, sColumnName, sColumnData, bGreyO
         }
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return rows; // caller may interrogate returned rows, saves recalling getRows() again
 }
 
@@ -1124,20 +1127,20 @@ kawasu.dynatable.setCellClass = function (row, sClass) {
 
 kawasu.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {
     var prefix = "kawasu.dynatable.getRows() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     var table = document.getElementById(sTableId);
     var tableHeader = kawasu.dynatable.getTableHeader(sTableId);
 
     if (tableHeader == null) {
-        console.log(prefix + "ERROR: Could not find table header based on sTableId: >" + sTableId + "<");
+        console.error(prefix + "ERROR: Could not find table header based on sTableId: >" + sTableId + "<");
         return;
     }
 
     var iCol = kawasu.dynatable.getIndexByColName(sTableId, sColumnName);
 
     if (iCol == -1) {
-        console.log(prefix + "ERROR: Could not get a column index value for a column called >" + sColumnName + "<");
+        console.error(prefix + "ERROR: Could not get a column index value for a column called >" + sColumnName + "<");
         return;
     }
 
@@ -1153,7 +1156,7 @@ kawasu.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {
 
     return arrayRows;
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
 }
 
 kawasu.dynatable.getTableHeader = function (sTableId) {
@@ -1163,7 +1166,7 @@ kawasu.dynatable.getTableHeader = function (sTableId) {
 
 kawasu.dynatable.getIndexByColName = function (sTableId, sColumnName) {
     var prefix = "kawasu.dynatable.getIndexByColName() - ";
-    console.log(prefix + "Entering");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // We're passed a header table, we return a zero-based index for the 
     // corresponding column, or -1 for failure.
@@ -1175,7 +1178,7 @@ kawasu.dynatable.getIndexByColName = function (sTableId, sColumnName) {
             return i;
     }
 
-    console.log(prefix + "Exiting");
+    if (kawasu.dynatable.config.bLog) console.log(prefix + "Exiting");
     return -1;
 }
 
