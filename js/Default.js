@@ -48,11 +48,12 @@ kawasu.orders.init = function () {
     styleDefn["tdClassGreyOut"] = "tdTestClassLargeGreyOut"; // Cell style grey out - text
 
     // BUILD A TEST DATA SET
-    var arrData = kawasu.orders.createTestDataA();
+    var arrDataA = kawasu.orders.createTestDataA();
+    
 
     // Dynatable testing
     var myDynaTable = kawasu.dynatable.build(
-        arrData,
+        arrDataA,
         styleDefn,
         "myDynaTable",
         10,
@@ -62,13 +63,13 @@ kawasu.orders.init = function () {
     $("#divContainer").append(myDynaTable);
 
     // BUILD A 2ND TEST DATA SET
-    var arrDataB = kawasu.orders.createTestDataB();
+    //var arrDataB = kawasu.orders.createTestDataB();
+    var arrDataB = kawasu.orders.createTestDataLargeRandom();
     kawasu.dynatable.rebuild("myDynaTable", arrDataB);
 
     kawasu.orders.hookupHandlers();
 
     kawasu.orders.btnToggleMultiSelect_setBtnText();
-
 
     console.log(prefix + "Exiting");
 }
@@ -194,11 +195,11 @@ kawasu.orders.createTestDataLargeRandom = function () {
     // Make a Json object to build a table out of
     var array = [];
 
-    for (var j = 0; j < 10000; ++j) {
+    for (var j = 0; j < 1000; ++j) {
         var obj = new Object();
-        for (var i = 0; i < 20; ++i) {
+        for (var i = 0; i < 50; ++i) {
             var sProp = "Property" + (i.toString());
-            obj[sProp] = i.toString();
+            obj[sProp] = kawasu.orders.getRandomString(32);
         }
         array.push(obj);
     }
@@ -206,6 +207,16 @@ kawasu.orders.createTestDataLargeRandom = function () {
     return array;
 
     console.log(prefix + "Exiting");
+}
+
+kawasu.orders.getRandomString = function (nStringLength) {
+    var nRandom = (Math.random() + 1); // 1.1234563443
+    var sRandom = nRandom.toString(36); // "1.garbage"
+    sRandom = sRandom.substring(2, sRandom.length); // drop first 2 chars ie "1."
+    if (fc.utils.isValidVar(nStringLength) && nStringLength > 0) {
+        sRandom = sRandom.substring(0, nStringLength);
+    }
+    return sRandom;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
