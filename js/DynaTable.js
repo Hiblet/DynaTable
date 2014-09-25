@@ -253,7 +253,10 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     var sTableId = table.id;
 
     table.style.tableLayout = "auto";
-    var arrayColumnWidths = kawasu.dynatable.getTableColumnWidths(table);
+
+    // Calculate and Store column widths
+    kawasu.dynatable[table.id].arrayColumnWidths = kawasu.dynatable.getTableColumnWidths(table);
+
     var sizeTable = kawasu.dynatable.getTableSize(table); // This is the size before the table is cut in two
 
     // Clone the table to make a header only
@@ -285,8 +288,8 @@ kawasu.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLast
     tableHeader.style.tableLayout = "fixed";
     var maxTableWidth = sizeTable.width;
     tableHeader.style.width = table.style.width = maxTableWidth.toString() + "px";
-    kawasu.dynatable.setTableColumnWidths(table, arrayColumnWidths);
-    kawasu.dynatable.setTableColumnWidths(tableHeader, arrayColumnWidths);
+    kawasu.dynatable.setTableColumnWidths(table, kawasu.dynatable[table.id].arrayColumnWidths);
+    kawasu.dynatable.setTableColumnWidths(tableHeader, kawasu.dynatable[table.id].arrayColumnWidths);
 
     // Get scrollbar dimensions
     var sbWidth = fc.utils.getScrollBarWidth();
@@ -464,10 +467,10 @@ kawasu.dynatable.setTableColumnWidths = function (table, arrayColumnWidths) {
     if (kawasu.dynatable.config.bLog) console.log(prefix + "Entering");
 
     // Iterate the table and set width settings for each cell
-    for (var i = 0; i < table.rows.length; ++i) {
-        for (var j = 0; j < table.rows[i].cells.length; ++j) {
+    if (table.rows.length > 0) {
+        for (var j = 0; j < table.rows[0].cells.length; ++j) {
             var width = arrayColumnWidths[j] || 0;
-            table.rows[i].cells[j].style.width = width.toString() + "px";
+            table.rows[0].cells[j].style.width = width.toString() + "px";
         }
     }
 
@@ -747,7 +750,11 @@ kawasu.dynatable.sortrows = function (table, tableHeader, n, comparator) {
         table.appendChild(rowsBlank[i][0]);
     }
 
+    // Re-apply the zebra striping
     kawasu.dynatable.resetRows(sTableId, table, true);
+
+    // Set the column widths of what is now the first row
+    kawasu.dynatable.setTableColumnWidths(table, kawasu.dynatable[table.id].arrayColumnWidths);
 
     // Save the sort column and order
     var sortColCName = table.id + "_SortCol";

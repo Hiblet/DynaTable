@@ -63,6 +63,11 @@ fc.utils.isEmptyString = function(obj) {
     return false;
 }
 
+//fc.utils.isNotEmptyStringOrWhiteSpace = function (str) {
+//    str = str.replace(/\s+/g, "");
+//    return str.length == 0 ? false : true;
+//}
+
 fc.utils.isEmptyStringOrWhiteSpace = function (obj) {
 
     if (fc.utils.isInvalidVar(obj))
@@ -1221,8 +1226,9 @@ fc.utils.isBlankRow = function (row) {
     var bRowIsBlank = true;
     for (var i = 0; (i < countCells && bRowIsBlank == true); ++i) {
         var sCell = row.cells[i].innerHTML;
-        if (!fc.utils.isEmptyStringOrWhiteSpace(sCell))
+        if (!fc.utils.isEmptyStringOrWhiteSpace(sCell)) {
             bRowIsBlank = false;
+        }
     }
     return bRowIsBlank;
 }
@@ -1340,11 +1346,14 @@ fc.utils.numericComparator = function (val1, val2) {
     */
 
     // Null or Empty String Handling
-    if (fc.utils.isEmptyStringOrWhiteSpace(val1) && fc.utils.isEmptyStringOrWhiteSpace(val2))
+    var bVal1Empty = fc.utils.isEmptyStringOrWhiteSpace(val1);
+    var bVal2Empty = fc.utils.isEmptyStringOrWhiteSpace(val2);
+
+    if (bVal1Empty && bVal2Empty)
         return 0;
-    if (fc.utils.isEmptyStringOrWhiteSpace(val1))
+    if (bVal1Empty)
         return -1;
-    if (fc.utils.isEmptyStringOrWhiteSpace(val2))
+    if (bVal2Empty)
         return 1;
     // else we have two non-white space strings
 
@@ -1373,23 +1382,17 @@ fc.utils.numericComparator = function (val1, val2) {
 
 fc.utils.defaultComparator = function (val1, val2) {
 
-    /*
-    // Null handling
-    if (val1 == null && val2 == null)
-    return 0;
-    if (val1 == null) // and implicitly, val2 is not null, val2 is greater, return -1
-    return -1;
-    if (val2 == null) // and implicitly, val1 is not null, val1 is greater, return 1
-    return 1;
-    // else, we have two valid strings
-    */
-
     // Null or Empty String Handling
-    if (fc.utils.isEmptyStringOrWhiteSpace(val1) && fc.utils.isEmptyStringOrWhiteSpace(val2))
+    var bVal1Empty = fc.utils.isEmptyStringOrWhiteSpace(val1);
+    var bVal2Empty = fc.utils.isEmptyStringOrWhiteSpace(val2);
+    //var bVal1Empty = !fc.utils.isNotEmptyStringOrWhiteSpace(val1);
+    //var bVal2Empty = !fc.utils.isNotEmptyStringOrWhiteSpace(val2);
+
+    if (bVal1Empty && bVal2Empty)
         return 0;
-    if (fc.utils.isEmptyStringOrWhiteSpace(val1))
+    if (bVal1Empty)
         return -1;
-    if (fc.utils.isEmptyStringOrWhiteSpace(val2))
+    if (bVal2Empty)
         return 1;
     // else we have two non-white space strings
 
