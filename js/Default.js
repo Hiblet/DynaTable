@@ -15,17 +15,17 @@ if (!window.console) console = { log: function () { } };
 ///////////////////////////////////////////////////////////////////////////////
 // Global Namespace for this application
 //
-var kawasu = kawasu || {};
+var nz = nz || {};
 
-if (fc.utils.isInvalidVar(kawasu.orders)) { kawasu.orders = new Object(); }
+if (fc.utils.isInvalidVar(nz.orders)) { nz.orders = new Object(); }
 
 
 // Global; Temporary, for GreyOut testing
 var bGreyOut = true;
 
 
-kawasu.orders.init = function () {
-    var prefix = "kawasu.orders.init() - ";
+nz.orders.init = function () {
+    var prefix = "nz.orders.init() - ";
     console.log(prefix + "Entering");
 
 
@@ -48,12 +48,12 @@ kawasu.orders.init = function () {
     styleDefn["tdClassGreyOut"] = "tdTestClassLargeGreyOut"; // Cell style grey out - text
 
     // BUILD A TEST DATA SET
-    var arrDataA = kawasu.orders.createTestDataA();
-    
+    var arrDataA = nz.orders.createTestDataA();
+    var arrDataWithControls = nz.orders.createTestDataWithControls();
 
     // Dynatable testing
-    var myDynaTable = kawasu.dynatable.build(
-        arrDataA,
+    var myDynaTable = nz.dynatable.build(
+        arrDataWithControls,
         styleDefn,
         "myDynaTable",
         10,
@@ -62,23 +62,28 @@ kawasu.orders.init = function () {
 
     $("#divContainer").append(myDynaTable);
 
+    nz.dynatable.SetCallback("myDynaTable", nz.orders.testCallback);
+
     // BUILD A 2ND TEST DATA SET
-    //var arrDataB = kawasu.orders.createTestDataB();
-    var arrDataB = kawasu.orders.createTestDataLargeRandom();
-    kawasu.dynatable.rebuild("myDynaTable", arrDataB);
+    //var arrDataB = nz.orders.createTestDataB();
 
-    kawasu.orders.hookupHandlers();
+    /* LARGE DATASET TEST
+    var arrDataB = nz.orders.createTestDataLargeRandom();
+    nz.dynatable.rebuild("myDynaTable", arrDataB);
+    */
 
-    kawasu.orders.btnToggleMultiSelect_setBtnText();
+    nz.orders.hookupHandlers();
+
+    nz.orders.btnToggleMultiSelect_setBtnText();
 
     console.log(prefix + "Exiting");
 }
 
-$(window).load(kawasu.orders.init);
+$(window).load(nz.orders.init);
 
 
-kawasu.orders.createZeroTestData = function () {
-    var prefix = "kawasu.orders.createZeroTestData() - ";
+nz.orders.createZeroTestData = function () {
+    var prefix = "nz.orders.createZeroTestData() - ";
     console.log(prefix + "Entering");
 
     // Make a Json object to build a table out of
@@ -100,8 +105,8 @@ kawasu.orders.createZeroTestData = function () {
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.createTestDataA = function () {
-    var prefix = "kawasu.orders.createTestDataA() - ";
+nz.orders.createTestDataA = function () {
+    var prefix = "nz.orders.createTestDataA() - ";
     console.log(prefix + "Entering");
 
     // Make a Json object to build a table out of
@@ -139,8 +144,8 @@ kawasu.orders.createTestDataA = function () {
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.createTestDataB = function () {
-    var prefix = "kawasu.orders.createTestDataB() - ";
+nz.orders.createTestDataB = function () {
+    var prefix = "nz.orders.createTestDataB() - ";
     console.log(prefix + "Entering");
 
     // Make a Json object to build a table out of
@@ -188,8 +193,8 @@ kawasu.orders.createTestDataB = function () {
 }
 
 
-kawasu.orders.createTestDataLargeRandom = function () {
-    var prefix = "kawasu.orders.createTestDataLargeRandom() - ";
+nz.orders.createTestDataLargeRandom = function () {
+    var prefix = "nz.orders.createTestDataLargeRandom() - ";
     console.log(prefix + "Entering");
 
     // Make a Json object to build a table out of
@@ -199,7 +204,7 @@ kawasu.orders.createTestDataLargeRandom = function () {
         var obj = new Object();
         for (var i = 0; i < 50; ++i) {
             var sProp = "Property" + (i.toString());
-            obj[sProp] = kawasu.orders.getRandomString(32);
+            obj[sProp] = nz.orders.getRandomString(32);
         }
         array.push(obj);
     }
@@ -209,7 +214,7 @@ kawasu.orders.createTestDataLargeRandom = function () {
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.getRandomString = function (nStringLength) {
+nz.orders.getRandomString = function (nStringLength) {
     var nRandom = (Math.random() + 1); // 1.1234563443
     var sRandom = nRandom.toString(36); // "1.garbage"
     sRandom = sRandom.substring(2, sRandom.length); // drop first 2 chars ie "1."
@@ -219,108 +224,180 @@ kawasu.orders.getRandomString = function (nStringLength) {
     return sRandom;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// HANDLERS
-//
 
-kawasu.orders.hookupHandlers = function () {
-
-    var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
-    fc.utils.addEvent(btnToggleMultiSelect, "click", kawasu.orders.btnToggleMultiSelect_onClick);
-
-    var btnSelectAll = document.getElementById("btnSelectAll");
-    fc.utils.addEvent(btnSelectAll, "click", kawasu.orders.btnSelectAll_onClick);
-
-    var btnDeselectAll = document.getElementById("btnDeselectAll");
-    fc.utils.addEvent(btnDeselectAll, "click", kawasu.orders.btnDeselectAll_onClick);
-
-    var btnDeleteSelected = document.getElementById("btnDeleteSelected");
-    fc.utils.addEvent(btnDeleteSelected, "click", kawasu.orders.btnDeleteSelected_onClick);
-
-    var btnDeleteRequest = document.getElementById("btnDeleteRequest");
-    fc.utils.addEvent(btnDeleteRequest, "click", kawasu.orders.btnDeleteRequest_onClick);
-
-    var btnGreyOutToggle = document.getElementById("btnGreyOutToggle");
-    fc.utils.addEvent(btnGreyOutToggle, "click", kawasu.orders.btnGreyOutToggle_onClick);
-
-    var btnApplySort = document.getElementById("btnApplySort");
-    fc.utils.addEvent(btnApplySort, "click", kawasu.orders.btnApplySort_onClick);
-}
-
-kawasu.orders.btnToggleMultiSelect_onClick = function (){
-    var prefix = "kawasu.orders.btnToggleMultiSelect_onClick() - ";
+nz.orders.createTestDataWithControls = function () {
+    var prefix = "nz.orders.createTestDataWithControls() - ";
     console.log(prefix + "Entering");
 
-    var bState = kawasu.dynatable.multiSelect("myDynaTable") ?
-        kawasu.dynatable.multiSelect("myDynaTable", false) :
-        kawasu.dynatable.multiSelect("myDynaTable", true);
+    // Make a Json object to build a table out of.
+    // Add a button at the start of each one.
+    var array = [];
 
-    kawasu.orders.btnToggleMultiSelect_setBtnText(bState);
+    var obj1 = {
+        "Control": "<input type='button' value='X' id='btnBODGET' onclick='nz.orders.btnTest_onClick(this.id,event)'/>",
+        "Contract": "BODGET",
+        "Side": "SELL",
+        "Qty": "24",
+        "Price": "1.03"
+    };
+
+    var obj2 = {
+        "Control": "<input type='button' value='X' id='btnDIGIT' onclick='nz.orders.btnTest_onClick(this.id,event)'/>",
+        "Contract": "DIGIT",
+        "Side": "SELL",
+        "Comment": "This would appear to be quite a long comment, really.  As comments go.",
+        "Qty": "8",
+        "Price": "101.32"
+    };
+
+    var obj3 = {
+        "Control": "<input type='button' value='X' id='btnBILCO' onclick='nz.orders.btnTest_onClick(this.id,event)'/>",
+        "Contract": "BILCO",
+        "Side": "SELL",
+        "Qty": 0, // Numeric zero, evaluates to false
+        "Price": "9.99",
+        "StopPrice": "232"
+    };
+
+    var obj4 = {
+        "Control": "<input type='button' value='X' id='btnJAGUAR' onclick='nz.orders.btnTest_onClick(this.id,event)'/>",
+        "Contract": "JAGUAR",
+        "Side": "BUY",
+        "Qty": "323",
+        "Price": "1",
+        "StopPrice": "783"
+    };
+
+    array.push(obj1);
+    array.push(obj2);
+    array.push(obj3);
+    array.push(obj4);
+
+
+    return array;
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnToggleMultiSelect_setBtnText = function (bState) {
+
+
+///////////////////////////////////////////////////////////////////////////////
+// HANDLERS
+//
+
+nz.orders.btnTest_onClick = function (id, event) {
+    var prefix = "nz.orders.btnTest_onClick() - ";
+    console.log(prefix + "Clicked: " + id);
+    event.stopPropagation();
+}
+
+nz.orders.hookupHandlers = function () {
+
+    var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
+    fc.utils.addEvent(btnToggleMultiSelect, "click", nz.orders.btnToggleMultiSelect_onClick);
+
+    var btnSelectAll = document.getElementById("btnSelectAll");
+    fc.utils.addEvent(btnSelectAll, "click", nz.orders.btnSelectAll_onClick);
+
+    var btnDeselectAll = document.getElementById("btnDeselectAll");
+    fc.utils.addEvent(btnDeselectAll, "click", nz.orders.btnDeselectAll_onClick);
+
+    var btnDeleteSelected = document.getElementById("btnDeleteSelected");
+    fc.utils.addEvent(btnDeleteSelected, "click", nz.orders.btnDeleteSelected_onClick);
+
+    var btnDeleteRequest = document.getElementById("btnDeleteRequest");
+    fc.utils.addEvent(btnDeleteRequest, "click", nz.orders.btnDeleteRequest_onClick);
+
+    var btnGreyOutToggle = document.getElementById("btnGreyOutToggle");
+    fc.utils.addEvent(btnGreyOutToggle, "click", nz.orders.btnGreyOutToggle_onClick);
+
+    var btnApplySort = document.getElementById("btnApplySort");
+    fc.utils.addEvent(btnApplySort, "click", nz.orders.btnApplySort_onClick);
+}
+
+nz.orders.btnToggleMultiSelect_onClick = function (){
+    var prefix = "nz.orders.btnToggleMultiSelect_onClick() - ";
+    console.log(prefix + "Entering");
+
+    var bState = nz.dynatable.multiSelect("myDynaTable") ?
+        nz.dynatable.multiSelect("myDynaTable", false) :
+        nz.dynatable.multiSelect("myDynaTable", true);
+
+    nz.orders.btnToggleMultiSelect_setBtnText(bState);
+
+    console.log(prefix + "Exiting");
+}
+
+nz.orders.btnToggleMultiSelect_setBtnText = function (bState) {
     // If state unknown, go get it...
     bState = (typeof bState === 'undefined') ?
-        kawasu.dynatable.multiSelect("myDynaTable") : bState;
+        nz.dynatable.multiSelect("myDynaTable") : bState;
 
     // Set the button text to reveal current state
     var btnToggleMultiSelect = document.getElementById("btnToggleMultiSelect");
     btnToggleMultiSelect.value = "Toggle MultiSelect: " + (bState ? "T" : "F");
 }
 
-kawasu.orders.btnSelectAll_onClick = function () {
-    var prefix = "kawasu.orders.btnSelectAll_onClick() - ";
+nz.orders.btnSelectAll_onClick = function () {
+    var prefix = "nz.orders.btnSelectAll_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.setSelectAll("myDynaTable",true);
+    nz.dynatable.setSelectAll("myDynaTable",true);
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnDeselectAll_onClick = function () {
-    var prefix = "kawasu.orders.btnDeselectAll_onClick() - ";
+nz.orders.btnDeselectAll_onClick = function () {
+    var prefix = "nz.orders.btnDeselectAll_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.setSelectAll("myDynaTable", false);
+    nz.dynatable.setSelectAll("myDynaTable", false);
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnDeleteSelected_onClick = function () {
-    var prefix = "kawasu.orders.btnDeleteSelected_onClick() - ";
+nz.orders.btnDeleteSelected_onClick = function () {
+    var prefix = "nz.orders.btnDeleteSelected_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.deleteSelected("myDynaTable", true);
+    nz.dynatable.deleteSelected("myDynaTable", true);
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnDeleteRequest_onClick = function () {
-    var prefix = "kawasu.orders.btnDeleteRequest_onClick() - ";
+nz.orders.btnDeleteRequest_onClick = function () {
+    var prefix = "nz.orders.btnDeleteRequest_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.deleteRequest("myDynaTable", true); // true==Reset selection after this fn called
+    nz.dynatable.deleteRequest("myDynaTable", true); // true==Reset selection after this fn called
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnGreyOutToggle_onClick = function () {
-    var prefix = "kawasu.orders.btnGreyOutToggle_onClick() - ";
+nz.orders.btnGreyOutToggle_onClick = function () {
+    var prefix = "nz.orders.btnGreyOutToggle_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.greyRows("myDynaTable", "Contract", "DIGIT", bGreyOut);
+    nz.dynatable.greyRows("myDynaTable", "Contract", "DIGIT", bGreyOut);
     bGreyOut = !bGreyOut;
 
     console.log(prefix + "Exiting");
 }
 
-kawasu.orders.btnApplySort_onClick = function () {
-    var prefix = "kawasu.orders.btnApplySort_onClick() - ";
+nz.orders.btnApplySort_onClick = function () {
+    var prefix = "nz.orders.btnApplySort_onClick() - ";
     console.log(prefix + "Entering");
 
-    kawasu.dynatable.applySortByColumnIndex("myDynaTable", 2, "DESC");
+    nz.dynatable.applySortByColumnIndex("myDynaTable", 2, "DESC");
+
+    console.log(prefix + "Exiting");
+}
+
+nz.orders.testCallback = function (row) {
+    var prefix = "nz.orders.testCallback() - ";
+    console.log(prefix + "Entering");
+    
+    console.log(prefix + "Callback function has been called.");
 
     console.log(prefix + "Exiting");
 }
