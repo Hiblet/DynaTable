@@ -603,16 +603,18 @@ nz.dynatable.dataCell_onClick = function () {
         row.className = trClassSelected;
     }
 
+    var arrSelectedRows = nz.dynatable.getSelectedRows(table);
+
     // Call the callback with the row clicked on
     if (fc.utils.isValidVar(fnCallback)) {
         if (typeof fnCallback === "function") {
             try {
-                fnCallback(row);
+                fnCallback(arrSelectedRows);
             }
             catch (ex) {
                 var msgException = "Failed during callback for dataCell_onClick event with exception: " + ex.message;
                 nz.dynatable.error(prefix + msgException);
-            }            
+            }
         }
         else {
             nz.dynatable.log(prefix + "Not calling callback function because callback function variable is not of type function.");
@@ -835,6 +837,11 @@ nz.dynatable.applySort = function (sTableId, n, sOrder) {
     nz.dynatable.log(prefix + "Exiting");
 }
 
+// CAUTION: 
+// Sorting functions assume that the table is attached to the document,
+// because they use document.getElementById() to locate the table.
+// If the table is not yet attached, sorts will fail.
+// Attach the dynatable, and then call the sort routine.
 nz.dynatable.applySortByColumnIndex = function (sTableId, n, sOrder) {
     var prefix = "nz.dynatable.applySortByColumnIndex() - ";
     nz.dynatable.log(prefix + "Entering");
@@ -862,6 +869,11 @@ nz.dynatable.applySortByColumnIndex = function (sTableId, n, sOrder) {
     nz.dynatable.log(prefix + "Exiting");
 }
 
+// CAUTION: 
+// Sorting functions assume that the table is attached to the document,
+// because they use document.getElementById() to locate the table.
+// If the table is not yet attached, sorts will fail.
+// Attach the dynatable, and then call the sort routine.
 nz.dynatable.applySortByColumnName = function (sTableId, sColName, sOrder) {
     var prefix = "nz.dynatable.applySortByColumnName() - ";
     nz.dynatable.log(prefix + "Entering");
@@ -1219,6 +1231,7 @@ nz.dynatable.getIndexByColName = function (sTableId, sColumnName) {
     // We're passed a header table, we return a zero-based index for the 
     // corresponding column, or -1 for failure.
     var tableHeader = nz.dynatable.getTableHeader(sTableId);
+
     var row = tableHeader.rows[0];
     for (var i = 0; i < row.cells.length; ++i) {
         var header = fc.utils.textContent(row.cells[i]);
