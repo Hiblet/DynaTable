@@ -393,11 +393,13 @@ nz.orders.btnApplySort_onClick = function () {
     console.log(prefix + "Exiting");
 }
 
-nz.orders.testCallback = function (row) {
+nz.orders.testCallback = function (arrRows) {
     var prefix = "nz.orders.testCallback() - ";
     console.log(prefix + "Entering");
-    
-    console.log(prefix + "Callback function has been called.");
+
+    var sRows = arrRows.toString();
+    var lblCallbackFeedback = document.getElementById("lblCallbackFeedback");
+    lblCallbackFeedback.innerHTML = sRows;
 
     console.log(prefix + "Exiting");
 }
