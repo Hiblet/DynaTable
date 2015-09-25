@@ -100,9 +100,9 @@ nz.orders.createZeroTestData = function () {
 
     array.push(obj1);
 
-    return array;
 
     console.log(prefix + "Exiting");
+    return array;
 }
 
 nz.orders.createTestDataA = function () {
@@ -139,9 +139,9 @@ nz.orders.createTestDataA = function () {
     array.push(obj2);
     array.push(obj3);
 
-    return array;
 
     console.log(prefix + "Exiting");
+    return array;    
 }
 
 nz.orders.createTestDataB = function () {
@@ -187,9 +187,9 @@ nz.orders.createTestDataB = function () {
     array.push(obj3);
     array.push(obj4);
 
-    return array;
 
     console.log(prefix + "Exiting");
+    return array;
 }
 
 
@@ -209,9 +209,9 @@ nz.orders.createTestDataLargeRandom = function () {
         array.push(obj);
     }
 
-    return array;
 
     console.log(prefix + "Exiting");
+    return array;
 }
 
 nz.orders.getRandomString = function (nStringLength) {
@@ -274,9 +274,8 @@ nz.orders.createTestDataWithControls = function () {
     array.push(obj4);
 
 
-    return array;
-
     console.log(prefix + "Exiting");
+    return array;
 }
 
 
