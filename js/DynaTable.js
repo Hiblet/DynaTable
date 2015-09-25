@@ -71,7 +71,7 @@ nz.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bMulti
     bExtendLastColOverScrollbar = (typeof bExtendLastColOverScrollbar !== 'undefined') ? bExtendLastColOverScrollbar : false;
 
     if (arrData.length == 0) {
-        console.error(prefix + "ERROR: No data passed to table creation routine build(), inbound array was zero length.");
+        nz.dynatable.error(prefix + "ERROR: No data passed to table creation routine build(), inbound array was zero length.");
         return;
     }
 
@@ -113,7 +113,7 @@ nz.dynatable.build = function (arrData, styleDefn, sTableId, nRowsToShow, bMulti
         return nz.dynatable.buildScrollingTable(rawTable, nRowsToShow, bExtendLastColOverScrollbar);
     }
     // implicit else
-    console.error(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
+    nz.dynatable.error(prefix + "ERROR: Failed to create rawTable from arrData array of JSON Objects passed in.");
     nz.dynatable.log(prefix + "Exiting");
 }
 
@@ -157,7 +157,7 @@ nz.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn, nRo
     // The raw table is padded with blank rows to the nRowsMinimum value.
 
     if (arguments.length != 5) {
-        console.error(prefix + "ERROR: Expected 5 args for this function, received:" + arguments.length.toString());
+        nz.dynatable.error(prefix + "ERROR: Expected 5 args for this function, received:" + arguments.length.toString());
         return;
     }
 
@@ -266,7 +266,7 @@ nz.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol)
     // Note that the table should already have the minimum number of rows
     // required.  Shortcut out if that is not the case...
     if (table.rows.length <= nRowsToShow) {
-        console.error(prefix + "ERROR: Table passed in did not have enough rows to display correctly.");
+        nz.dynatable.error(prefix + "ERROR: Table passed in did not have enough rows to display correctly.");
         return;
     }
 
@@ -574,7 +574,7 @@ nz.dynatable.dataCell_onClick = function () {
     var row = this.parentNode;
 
     if (fc.utils.isInvalidVar(row)) {
-        console.error(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
+        nz.dynatable.error(prefix + "ERROR: Clicked cell did not have valid row as a parent.");
         return;
     }
 
@@ -656,7 +656,7 @@ nz.dynatable.getSelectedIndices = function (sTableId) {
 
     var table = document.getElementById(sTableId);
     if (fc.utils.isInvalidVar(table)) {
-        console.error(prefix + "ERROR: Could not get table element by id using passed id: >" + sTableId + "<");
+        nz.dynatable.error(prefix + "ERROR: Could not get table element by id using passed id: >" + sTableId + "<");
         return arrayRowsSelectedIndices;
     }
 
@@ -818,7 +818,7 @@ nz.dynatable.applySort = function (sTableId, n, sOrder) {
     var table = document.getElementById(sTableId);
 
     if (!fc.utils.isValidVar(table)) {
-        console.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        nz.dynatable.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
         return;
     }
 
@@ -845,20 +845,20 @@ nz.dynatable.applySortByColumnIndex = function (sTableId, n, sOrder) {
     nz.dynatable.log(prefix + "Entering");
 
     if (n < 0) {
-        console.error(prefix + "ERROR: Column index is negative.");
+        nz.dynatable.error(prefix + "ERROR: Column index is negative.");
         return;
     }
 
     var table = document.getElementById(sTableId);
 
     if (!fc.utils.isValidVar(table)) {
-        console.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
+        nz.dynatable.error(prefix + "ERROR: Could not find table with id >" + sTableId + "<");
         return;
     }
 
     var nCols = table.rows[0].cells.length;
     if (n >= nCols) {
-        console.error(prefix + "ERROR: Column index is greater than the number of columns in the table (" + nCols + ")");
+        nz.dynatable.error(prefix + "ERROR: Column index is greater than the number of columns in the table (" + nCols + ")");
         return;
     }
 
@@ -967,7 +967,7 @@ nz.dynatable.setSelectAll = function (sTableId, bSelectState) {
     nz.dynatable.log(prefix + "Entering");
 
     if (typeof bSelectState === 'undefined') {
-        console.error(prefix + "ERROR: No parameter passed to this function.  No default can be assumed.  No action taken.");
+        nz.dynatable.error(prefix + "ERROR: No parameter passed to this function.  No default can be assumed.  No action taken.");
         nz.dynatable.log(prefix + "Exiting");
         return;
     }
@@ -1006,7 +1006,7 @@ nz.dynatable.getColNameByIndex = function (sTableId, n) {
     var headerLength = tableHeader.rows[0].cells.length;
     if (n >= headerLength) {
         // Error, index requested is too big for this header
-        console.error(prefix + "ERROR: Index >" + n + "< requested from Header with length of >" + headerLength + "<; Cannot retrieve column name.");
+        nz.dynatable.error(prefix + "ERROR: Index >" + n + "< requested from Header with length of >" + headerLength + "<; Cannot retrieve column name.");
         return "";
     }
 
@@ -1191,14 +1191,14 @@ nz.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {
     var tableHeader = nz.dynatable.getTableHeader(sTableId);
 
     if (tableHeader == null) {
-        console.error(prefix + "ERROR: Could not find table header based on sTableId: >" + sTableId + "<");
+        nz.dynatable.error(prefix + "ERROR: Could not find table header based on sTableId: >" + sTableId + "<");
         return;
     }
 
     var iCol = nz.dynatable.getIndexByColName(sTableId, sColumnName);
 
     if (iCol == -1) {
-        console.error(prefix + "ERROR: Could not get a column index value for a column called >" + sColumnName + "<");
+        nz.dynatable.error(prefix + "ERROR: Could not get a column index value for a column called >" + sColumnName + "<");
         return;
     }
 
