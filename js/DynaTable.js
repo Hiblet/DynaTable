@@ -142,9 +142,8 @@ nz.dynatable.buildHeaderData = function (arrayJsonObjects) {
 
     }
 
-    return header;
-
     nz.dynatable.log(prefix + "Exiting");
+    return header;
 }
 
 nz.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn, nRowsMinimum) {
@@ -250,8 +249,8 @@ nz.dynatable.buildRawTable = function (sTableId, arrData, header, styleDefn, nRo
         table.appendChild(tr);
     }
 
-    return table;
     nz.dynatable.log(prefix + "Exiting");
+    return table;
 }
 
 nz.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol) {
@@ -370,9 +369,9 @@ nz.dynatable.buildScrollingTable = function (table, nRowsToShow, bExtendLastCol)
 
     divShell.appendChild(divOuter);
 
-    return divShell;
 
     nz.dynatable.log(prefix + "Exiting");
+    return divShell;
 }
 
 nz.dynatable.rebuild = function (sTableId, arrDataNew) {
@@ -435,9 +434,9 @@ nz.dynatable.getTableSize = function (table, nRowsToShow) {
         tableClone.deleteRow(k - 1);
     }
 
-    return nz.dynatable.getTableSize_Sub(tableClone);
 
     nz.dynatable.log(prefix + "Exiting");
+    return nz.dynatable.getTableSize_Sub(tableClone);
 }
 
 nz.dynatable.getTableSize_Sub = function (table) {
@@ -542,9 +541,8 @@ nz.dynatable.getTableColumnWidths = function (table) {
     divSizing.removeChild(table);
     document.body.removeChild(divSizing);
 
-    return arrayColumnWidths;
-
     nz.dynatable.log(prefix + "Exiting");
+    return arrayColumnWidths;
 }
 
 nz.dynatable.extendLastColumnOverScrollbar = function (tableHeader, sbWidth) {
@@ -1214,9 +1212,8 @@ nz.dynatable.getRows = function (sTableId, sColumnName, sColumnData) {
             arrayRows.push(table.rows[i]);
     }
 
-    return arrayRows;
-
     nz.dynatable.log(prefix + "Exiting");
+    return arrayRows;
 }
 
 nz.dynatable.getTableHeader = function (sTableId) {
