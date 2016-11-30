@@ -50,7 +50,7 @@ nz.dynatable.config.sDivOuterSuffix = "_Outer";
 nz.dynatable.config.sDivShellPrefix = "div_";
 nz.dynatable.config.sDivShellSuffix = "_Shell";
 
-nz.dynatable.config.sEmptyStringHtml = "&nbsp";
+nz.dynatable.config.sEmptyStringHtml = "&nbsp;";
 nz.dynatable.config.nNumericPadding = 6;
 nz.dynatable.config.sType_DATA = "DATA";
 nz.dynatable.config.sType_PADDING = "PADDING";
